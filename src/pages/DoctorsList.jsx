@@ -1,0 +1,394 @@
+import { useEffect, useState } from "react";
+import AdminLayout from "../components/AdminLayout";
+import adminService from "../services/admin.service";
+import doctorService from "../services/doctor.service";
+import Loading from "../components/Loading";
+import DoctorProfileModal from "../components/DoctorProfileModal";
+
+export const CheckIcon = ({ size = 14 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+);
+
+export const CrossIcon = ({ size = 14 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
+
+export const ClockIcon = ({ size = 14 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v6l4 2" />
+  </svg>
+);
+
+export const SearchIcon = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <path d="M21 21l-4.3-4.3" />
+  </svg>
+);
+
+export const EyeIcon = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+function DoctorsList() {
+  const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [filters, setFilters] = useState({
+    name: "",
+    state: "",
+    specialty: ""
+  });
+
+  const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+
+
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true);
+
+      const params = {
+        ...filters,
+        page,
+        limit,
+        status
+      }
+      const result = await doctorService.getDoctors(params);
+      setList(result?.doctor_list || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+  }, [page, status]);
+
+  const handleChange = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
+  };
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchDoctors();
+  };
+
+  const handleUpdateStatus = async (id, status) => {
+    try {
+      await adminService.updateDoctorStatus(id, { status });
+      fetchDoctors();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  return (
+    <AdminLayout>
+      <div className="w-full max-w-7xl mx-auto">
+
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">Manage Doctors</h1>
+
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <p className="text-sm text-blue-800">
+            To verify doctor credentials, you can use the official NMC registry.
+          </p>
+
+          <a href="https://www.nmc.org.in/information-desk/indian-medical-register/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm whitespace-nowrap"
+          >
+            Verify on NMC
+          </a>
+        </div>
+
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+          {["", "PENDING", "VERIFIED", "REJECTED"].map((s) => (
+            <button
+              key={s}
+              onClick={() => { setStatus(s); setPage(1); }}
+              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition font-medium
+              ${status === s
+                  ? "bg-blue-600 text-white shadow"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+            >
+              {s || "ALL"}
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-white p-3 rounded-2xl shadow mb-6 flex flex-col sm:flex-row gap-3">
+          <input
+            name="name"
+            placeholder="Doctor name"
+            onChange={handleChange}
+            className="border px-3 py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none text-sm"
+          />
+          <input
+            name="state"
+            placeholder="State"
+            onChange={handleChange}
+            className="border px-3 py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none text-sm"
+          />
+          <input
+            name="specialty"
+            placeholder="Specialty"
+            onChange={handleChange}
+            className="border px-3 py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none text-sm"
+          />
+          <button
+            onClick={handleSearch}
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm whitespace-nowrap"
+          >
+            <SearchIcon />
+            Search
+          </button>
+        </div>
+
+        {loading && <Loading message="Loading doctors..." />}
+
+        {/* DESKTOP TABLE — hidden on mobile */}
+        {!loading && (
+          <>
+            <div className="hidden md:block bg-white border border-gray-200 rounded-2xl shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-100 sticky top-0 z-10">
+                    <tr>
+                      <th className="p-4 text-left">Doctor</th>
+                      <th className="p-4 text-left">Email</th>
+                      <th className="p-4 text-left">Specialty</th>
+                      <th className="p-4 text-left">State</th>
+                      <th className="p-4 text-center">Profile</th>
+                      <th className="p-4 text-center">Completion</th>
+                      <th className="p-4 text-center">Status</th>
+                      <th className="p-4 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {list.map((doc, index) => (
+                      <tr
+                        key={doc.id}
+                        className={`border-t hover:bg-gray-50 transition ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
+                      >
+                        <td className="p-4 font-medium text-gray-800">{doc.name}</td>
+                        <td className="p-4 text-gray-600">{doc.email}</td>
+                        <td className="p-4 text-gray-600">{doc?.specialty || "-"}</td>
+                        <td className="p-4 text-gray-600">{doc?.state || "-"}</td>
+                        <td className="p-4 text-center">
+                          <button
+                            onClick={() => setSelectedDoctorId(doc.id)}
+                            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+                            title="View Profile"
+                          >
+                            <EyeIcon />
+                          </button>
+                        </td>
+                        <td className="p-4 text-center text-gray-600">
+                          {doc?.completionPercentage || "0"}%
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
+                          ${doc.status === "VERIFIED" ? "bg-green-100 text-green-700"
+                              : doc.status === "PENDING" ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"}`}
+                          >
+                            {doc.status === "VERIFIED" && <CheckIcon />}
+                            {doc.status === "PENDING" && <ClockIcon />}
+                            {doc.status === "REJECTED" && <CrossIcon />}
+                            {doc.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex justify-center gap-2">
+                            {doc.status !== "VERIFIED" && (
+                              <button
+                                onClick={() => handleUpdateStatus(doc.id, "VERIFIED")}
+                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700 text-xs"
+                              >
+                                <CheckIcon />
+                                Approve
+                              </button>
+                            )}
+                            {doc.status !== "REJECTED" && (
+                              <button
+                                onClick={() => handleUpdateStatus(doc.id, "REJECTED")}
+                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 text-xs"
+                              >
+                                <CrossIcon />
+                                Reject
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {list.length === 0 && (
+                <div className="p-10 text-center text-gray-500">No doctors found</div>
+              )}
+            </div>
+
+            {/* MOBILE CARDS — shown only on mobile */}
+            <div className="md:hidden flex flex-col gap-3">
+              {list.length === 0 && (
+                <div className="p-10 text-center text-gray-500 bg-white rounded-2xl shadow">
+                  No doctors found
+                </div>
+              )}
+              {list.map((doc) => (
+                <div key={doc.id} className="bg-white rounded-2xl shadow border border-gray-100 p-4 flex flex-col gap-3">
+
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-gray-800">{doc.name}</p>
+                      <p className="text-xs text-gray-500">{doc.email}</p>
+                    </div>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shrink-0
+                    ${doc.status === "VERIFIED" ? "bg-green-100 text-green-700"
+                        : doc.status === "PENDING" ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"}`}
+                    >
+                      {doc.status === "VERIFIED" && <CheckIcon />}
+                      {doc.status === "PENDING" && <ClockIcon />}
+                      {doc.status === "REJECTED" && <CrossIcon />}
+                      {doc.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1 text-xs text-gray-500">
+                    <span><span className="font-medium text-gray-700">Specialty:</span> {doc?.specialty || "-"}</span>
+                    <span><span className="font-medium text-gray-700">State:</span> {doc?.state || "-"}</span>
+                    <span><span className="font-medium text-gray-700">Completion:</span> {doc?.completionPercentage || "0"}%</span>
+                  </div>
+
+                  <div className="flex gap-2 pt-1 border-t border-gray-100">
+                    <button
+                      onClick={() => setSelectedDoctorId(doc.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-xs text-gray-700"
+                    >
+                      <EyeIcon size={13} />
+                      View
+                    </button>
+                    {doc.status !== "VERIFIED" && (
+                      <button
+                        onClick={() => handleUpdateStatus(doc.id, "VERIFIED")}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700 text-xs"
+                      >
+                        <CheckIcon />
+                        Approve
+                      </button>
+                    )}
+                    {doc.status !== "REJECTED" && (
+                      <button
+                        onClick={() => handleUpdateStatus(doc.id, "REJECTED")}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 text-xs"
+                      >
+                        <CrossIcon />
+                        Reject
+                      </button>
+                    )}
+                  </div>
+
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* PAGINATION */}
+        <div className="flex justify-center items-center mt-6 gap-4">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50 text-sm font-medium hover:bg-gray-300 transition"
+          >
+            ← Prev
+          </button>
+          <span className="text-gray-600 font-medium text-sm">Page {page}</span>
+          <button
+            disabled={list.length < limit}
+            onClick={() => setPage(page + 1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 text-sm font-medium hover:bg-blue-700 transition"
+          >
+            Next →
+          </button>
+        </div>
+
+        {selectedDoctorId && (
+          <DoctorProfileModal
+            doctorId={selectedDoctorId}
+            onClose={() => setSelectedDoctorId(null)}
+          />
+        )}
+
+      </div>
+    </AdminLayout>
+  );
+
+}
+
+export default DoctorsList;

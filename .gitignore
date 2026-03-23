@@ -1,0 +1,42 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignore the node_modules folder, which contains dependencies.
+node_modules/
+uploads/
+# Ignore the .env file, which often contains sensitive information like API keys.
+.env
+package-lock.json
+logs
+
+# Ignore the tmp folder, which may be used for temporary files.
+tmp/
+
+# Ignore the package-lock.json file, as it is generated and not necessary for others.
+# package-lock.json
+
+# Ignore the logs folder, which may contain logs generated during development.
+logs/
+
