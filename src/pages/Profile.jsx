@@ -133,7 +133,7 @@ function Profile() {
                 !loading && profile && (
                     <main className="flex-1 max-w-4xl mx-auto w-full p-4">
 
-                        <div className="flex flex-col items-center justify-between mb-6 gap-2">
+                        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-2">
                             <div>
                                 <h1 className="text-2xl font-bold text-[#0a1628]">My Profile</h1>
                                 <p className="text-sm text-gray-400 mt-0.5">
