@@ -13,8 +13,7 @@ function Users() {
   const [loading, setLoading] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [total, setTotal] = useState(0);
+  const limit = 10;
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -188,22 +187,19 @@ function Users() {
           </>
         )}
 
-        {/* PAGINATION */}
         <div className="flex justify-center items-center mt-6 gap-4">
           <button
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl disabled:opacity-40 text-sm font-medium transition"
+            className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50 text-sm font-medium hover:bg-gray-300 transition"
           >
             ← Prev
           </button>
-          <span className="text-sm text-gray-600 font-medium">
-            Page {page} / {Math.max(1, Math.ceil(total / limit))}
-          </span>
+          <span className="text-gray-600 font-medium text-sm">Page {page}</span>
           <button
-            disabled={page * limit >= total}
+            disabled={list.length < limit}
             onClick={() => setPage(page + 1)}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-40 text-sm font-medium transition"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 text-sm font-medium hover:bg-blue-700 transition"
           >
             Next →
           </button>
