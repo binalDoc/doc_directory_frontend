@@ -91,3 +91,11 @@ export const getImageUrl = (path) => {
 
   return `${ASSET_BASE_URL}${path}`;
 };
+
+export const getIndianTime = (original_datetime) => {
+  const utcDate = new Date(original_datetime);
+  const istOptions = { timeZone: "Asia/Kolkata" };
+  const istDateString = utcDate.toLocaleString("en-IN", istOptions);
+
+  return istDateString;
+}

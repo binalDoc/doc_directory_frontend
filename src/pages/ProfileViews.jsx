@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import adminService from "../services/admin.service";
 import Loading from "../components/Loading";
+import { getIndianTime } from "../utils/helper";
 
 import {
     LineChart,
@@ -52,6 +53,11 @@ function ProfileViews() {
         fetchDashboard();
     }, []);
 
+    const formattedData = viewsByDate.map(item => ({
+        ...item,
+        formattedDate: getIndianTime(item.date)
+    }));
+
     return (
         <AdminLayout>
             <div className="max-w-7xl mx-auto">
@@ -71,9 +77,9 @@ function ProfileViews() {
                                 <h2 className="font-semibold mb-4">Views Over Time</h2>
 
                                 <ResponsiveContainer width="100%" height={300}>
-                                    <LineChart data={viewsByDate}>
+                                    <LineChart data={formattedData}>
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="date" />
+                                        <XAxis dataKey="formattedDate" />
                                         <YAxis />
                                         <Tooltip />
                                         <Line type="monotone" dataKey="views" />
