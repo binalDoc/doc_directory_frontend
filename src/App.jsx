@@ -18,6 +18,7 @@ import AdminRoute from "./components/AdminRoute";
 import Dashboard from "./pages/Dashboard";
 import DoctorsList from "./pages/DoctorsList.jsx";
 import Users from "./pages/Users.jsx";
+import ProfileViews from "./pages/ProfileViews.jsx";
 
 function App() {
   const { user, logout } = useAuth();
@@ -109,6 +110,14 @@ function App() {
           element={
             <AdminRoute>
               <Users />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/profile-views"
+          element={
+            <AdminRoute>
+              <ProfileViews />
             </AdminRoute>
           }
         />

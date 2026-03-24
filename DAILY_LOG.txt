@@ -1,0 +1,73 @@
+====================================================
+  DOCTOR DIRECTORY — HACKATHON DAILY LOG
+====================================================
+
+----------------------------------------------------
+📅 17 Mar 2026 — Day 1: Planning & Research
+----------------------------------------------------
+  • Designed overall system architecture (frontend, backend, DB, storage)
+  • Finalized tech stack: Netlify → Render → Neon PostgreSQL
+  • Researched PostgreSQL search optimization (indexes + full-text search)
+  • Planned Cloudinary integration for doctor image storage
+
+----------------------------------------------------
+📅 18 Mar 2026 — Day 2: Backend Foundation
+----------------------------------------------------
+  • Initialized Node.js + Express project
+  • Connected PostgreSQL (Neon) with SSL handling
+  • Designed DB schema: users, doctor_profiles, pharma_profiles tables
+  • Added indexes on email, role, specialty, city for query optimization
+  • Implemented user, doctor, and pharma models with CRUD queries
+  • Evaluated scalability needs: autoscaling, Redis caching, CDN
+
+----------------------------------------------------
+📅 19 Mar 2026 — Day 3: Backend APIs + Frontend Init
+----------------------------------------------------
+  • Built Signup & Login APIs with Joi validation and JWT auth
+  • Designed doctor profile completion logic
+  • Added profile_views table for activity/audit logging
+  • Initialized Vite + React frontend project
+  • Set up Axios instance with centralized auth service layer
+  • Implemented Auth Context with global state + auto logout on token expiry
+
+----------------------------------------------------
+📅 20 Mar 2026 — Day 4: Frontend Core Pages
+----------------------------------------------------
+  • Built Register & Login pages with Tailwind styling + API integration
+  • Implemented Welcome page with conditional UI based on auth state
+  • Set up protected routes and role-based navigation
+  • Built Doctor Directory page with search, filters, card UI
+  • Fixed Axios query params bug for dynamic filtering
+  • Added pagination, loading states, and empty state handling
+
+----------------------------------------------------
+📅 21 Mar 2026 — Day 5: UI Polish & Profile
+----------------------------------------------------
+  • Redesigned Doctor Directory with modern layout and improved UX
+  • Enhanced doctor cards: profile image, verified badge, better styling
+  • Implemented Doctor Profile popup modal
+  • Built User Profile page with edit mode, image upload, completion bar
+  • Added role-based fields on profile page
+
+----------------------------------------------------
+📅 22 Mar 2026 — Day 6: Admin Panel + DB Fixes
+----------------------------------------------------
+  • Built doctor status toggle (Verify / Reject) with SQL CASE logic
+  • Fixed multi-state approval workflow: PENDING → VERIFIED / REJECTED
+  • Built Admin User CRUD APIs with role-specific profile handling
+  • Designed Users listing page with filters, pagination, API integration
+  • Added create/update modal, delete confirmation popup, toaster alerts
+  • Fixed LEFT JOIN null issue in users + profiles query (SQL aliasing)
+
+----------------------------------------------------
+📅 23 Mar 2026 — Day 7: Bulk Upload, Analytics, Docs & Deployment
+----------------------------------------------------
+  • Built bulk doctor upload API (Excel parsing, key-role validation)
+  • Handled per-row error reporting with success/failed counts in API response
+  • Built Bulk Upload modal UI with drag & drop, file preview, result summary view
+  • Fixed file input reset bug — re-selecting same file now triggers correctly
+  • Designed Admin Profile Views Analytics page (most viewed doctors, viewer log)
+  • Structured and rewrote README with architecture diagram, API reference, DB design
+  • Deployed frontend to Netlify and backend to Render
+ 
+====================================================

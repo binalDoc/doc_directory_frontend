@@ -4,6 +4,8 @@ import adminService from "../services/admin.service";
 import doctorService from "../services/doctor.service";
 import Loading from "../components/Loading";
 import DoctorProfileModal from "../components/DoctorProfileModal";
+import toaster from "../components/toaster";
+import BulkUploadModal from "../components/BulkUploadModal";
 
 export const CheckIcon = ({ size = 14 }) => (
   <svg
@@ -97,6 +99,7 @@ function DoctorsList() {
   const [page, setPage] = useState(1);
   const limit = 10;
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+  const [showBulkModal, setShowBulkModal] = useState(false);
 
 
   const fetchDoctors = async () => {
@@ -145,7 +148,16 @@ function DoctorsList() {
     <AdminLayout>
       <div className="w-full max-w-7xl mx-auto">
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Manage Doctors</h1>
+        <div className="flex flex-row items-center justify-between gap-2 mb-4">
+          <h1 className="text-2xl font-bold text-gray-800">Manage Doctors</h1>
+
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="w-fit inline-flex items-center gap-2 p-2 bg-white text-black border border-gray-400 rounded-xl text-sm font-medium shadow-sm transition"
+          >
+            Bulk Upload Doctors
+          </button>
+        </div>
 
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <p className="text-sm text-blue-800">
@@ -210,82 +222,81 @@ function DoctorsList() {
         {/* DESKTOP TABLE — hidden on mobile */}
         {!loading && (
           <>
-            <div className="hidden md:block bg-white border border-gray-200 rounded-2xl shadow overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-100 sticky top-0 z-10">
-                    <tr>
-                      <th className="p-4 text-left">Doctor</th>
-                      <th className="p-4 text-left">Email</th>
-                      <th className="p-4 text-left">Specialty</th>
-                      <th className="p-4 text-left">State</th>
-                      <th className="p-4 text-center">Profile</th>
-                      <th className="p-4 text-center">Completion</th>
-                      <th className="p-4 text-center">Status</th>
-                      <th className="p-4 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.map((doc, index) => (
-                      <tr
-                        key={doc.id}
-                        className={`border-t hover:bg-gray-50 transition ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
-                      >
-                        <td className="p-4 font-medium text-gray-800">{doc.name}</td>
-                        <td className="p-4 text-gray-600">{doc.email}</td>
-                        <td className="p-4 text-gray-600">{doc?.specialty || "-"}</td>
-                        <td className="p-4 text-gray-600">{doc?.state || "-"}</td>
-                        <td className="p-4 text-center">
-                          <button
-                            onClick={() => setSelectedDoctorId(doc.id)}
-                            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
-                            title="View Profile"
-                          >
-                            <EyeIcon />
-                          </button>
-                        </td>
-                        <td className="p-4 text-center text-gray-600">
-                          {doc?.completionPercentage || "0"}%
-                        </td>
-                        <td className="p-4 text-center">
-                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
+            <div className="hidden md:block bg-white border border-gray-200 rounded-2xl shadow w-full overflow-hidden">              <div className="overflow-x-auto">
+              <table className="w-full text-sm table-fixed">
+                <thead className="bg-gray-100 sticky top-0 z-10">
+                  <tr>
+                    <th className="p-4 text-left w-[100px]">Doctor</th>
+                    <th className="p-4 text-left w-[100px]">Specialty</th>
+                    <th className="p-4 text-center w-[100px]">Profile</th>
+                    <th className="p-4 text-center w-[120px]">Completion</th>
+                    <th className="p-4 text-center w-[120px]">Status</th>
+                    <th className="p-4 text-center w-[160px]">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.map((doc, index) => (
+                    <tr
+                      key={doc.id}
+                      className={`border-t hover:bg-gray-50 transition ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
+                    >
+                      <td className="p-4 font-medium text-gray-800">{doc.name}</td>
+
+                      <td className="p-4 text-gray-600 truncate">
+                        {doc?.specialty || "-"}
+                      </td>
+
+                      <td className="p-4 text-center">
+                        <button
+                          onClick={() => setSelectedDoctorId(doc.id)}
+                          className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+                          title="View Profile"
+                        >
+                          <EyeIcon />
+                        </button>
+                      </td>
+                      <td className="p-4 text-center text-gray-600">
+                        {doc?.completionPercentage || "0"}%
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
                           ${doc.status === "VERIFIED" ? "bg-green-100 text-green-700"
-                              : doc.status === "PENDING" ? "bg-yellow-100 text-yellow-700"
-                                : "bg-red-100 text-red-700"}`}
-                          >
-                            {doc.status === "VERIFIED" && <CheckIcon />}
-                            {doc.status === "PENDING" && <ClockIcon />}
-                            {doc.status === "REJECTED" && <CrossIcon />}
-                            {doc.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex justify-center gap-2">
-                            {doc.status !== "VERIFIED" && (
-                              <button
-                                onClick={() => handleUpdateStatus(doc.id, "VERIFIED")}
-                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700 text-xs"
-                              >
-                                <CheckIcon />
-                                Approve
-                              </button>
-                            )}
-                            {doc.status !== "REJECTED" && (
-                              <button
-                                onClick={() => handleUpdateStatus(doc.id, "REJECTED")}
-                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 text-xs"
-                              >
-                                <CrossIcon />
-                                Reject
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            : doc.status === "PENDING" ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700"}`}
+                        >
+                          {doc.status === "VERIFIED" && <CheckIcon />}
+                          {doc.status === "PENDING" && <ClockIcon />}
+                          {doc.status === "REJECTED" && <CrossIcon />}
+                          {doc.status}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-center gap-2">
+                          {doc.status !== "VERIFIED" && (
+                            <button
+                              onClick={() => handleUpdateStatus(doc.id, "VERIFIED")}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700 text-xs"
+                            >
+                              <CheckIcon />
+                              Approve
+                            </button>
+                          )}
+                          {doc.status !== "REJECTED" && (
+                            <button
+                              onClick={() => handleUpdateStatus(doc.id, "REJECTED")}
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 text-xs"
+                            >
+                              <CrossIcon />
+                              Reject
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
               {list.length === 0 && (
                 <div className="p-10 text-center text-gray-500">No doctors found</div>
@@ -378,10 +389,18 @@ function DoctorsList() {
           </button>
         </div>
 
+        {showBulkModal && (
+          <BulkUploadModal
+            onClose={() => setShowBulkModal(false)}
+            onSuccess={fetchDoctors}
+          />
+        )}
+
         {selectedDoctorId && (
           <DoctorProfileModal
             doctorId={selectedDoctorId}
             onClose={() => setSelectedDoctorId(null)}
+            CrossIcon={CrossIcon}
           />
         )}
 

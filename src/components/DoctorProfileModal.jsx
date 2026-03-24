@@ -22,159 +22,160 @@ function DoctorProfileModal({ doctorId, onClose }) {
         if (doctorId) fetchDoctor();
     }, [doctorId]);
 
-   return (
-  <div className="fixed inset-0 bg-[#0a1628]/60 backdrop-blur-sm flex justify-center items-center z-50 px-4 py-6">
+    return (
+        <div className="fixed inset-0 bg-[#0a1628]/60 backdrop-blur-sm flex justify-center items-center z-50 px-4 py-6">
+            {/* MODAL */}
+            <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl relative h-[90vh] flex flex-col overflow-hidden">
+                {/* CLOSE */}
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-700 transition text-sm z-20"
+                >
+                    ✕
+                </button>
 
-    <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl relative max-h-[90vh] overflow-y-auto flex flex-col">
+                {/* LOADING */}
+                {loading && (
+                    <div className="flex items-center justify-center py-16 text-gray-400 text-sm gap-2">
+                        <span className="w-4 h-4 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+                        Loading profile...
+                    </div>
+                )}
 
-      {/* Close */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-700 transition text-sm z-10"
-      >
-        ✕
-      </button>
+                {!loading && doctor && (
+                    <>
+                        {/* HEADER (STICKY) */}
+                        <div
+                            className="bg-[#0a1628] px-6 py-7 relative overflow-hidden shrink-0"
+                            style={{
+                                backgroundImage: `
+                  linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px)
+                `,
+                                backgroundSize: "48px 48px",
+                            }}
+                        >
+                            {/* Glow */}
+                            <div className="absolute top-[-40px] right-[-40px] w-[180px] h-[180px] rounded-full bg-blue-600/15 blur-[60px]" />
 
-      {/* Loading */}
-      {loading && (
-        <div className="flex items-center justify-center py-16 text-gray-400 text-sm gap-2">
-          <span className="w-4 h-4 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
-          Loading profile...
+                            <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+
+                                {/* Avatar */}
+                                <div className="w-16 h-16 rounded-2xl bg-blue-900/50 border border-blue-700/30 overflow-hidden flex items-center justify-center shrink-0">
+                                    {doctor.profile_image_url ? (
+                                        <img
+                                            src={getImageUrl(doctor.profile_image_url)}
+                                            className="w-full h-full object-cover"
+                                            alt={doctor.name}
+                                        />
+                                    ) : (
+                                        <span className="text-2xl font-bold text-blue-300 capitalize">
+                                            {doctor.name?.charAt(0)}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Name */}
+                                <div className="text-center sm:text-left flex-1">
+                                    <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                                        <h2 className="text-lg font-bold text-white">
+                                            {doctor.name}
+                                        </h2>
+
+                                        {doctor.status === "VERIFIED" && (
+                                            <span className="inline-flex items-center gap-1 bg-green-500/20 border border-green-500/30 text-green-400 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                                ✓ Verified
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {doctor.specialty && (
+                                        <p className="text-blue-300 text-sm mt-1">
+                                            {doctor.specialty}
+                                        </p>
+                                    )}
+
+                                    <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2 text-xs text-gray-400">
+                                        {(doctor.city || doctor.state) && (
+                                            <span>
+                                                {[doctor.city, doctor.state]
+                                                    .filter(Boolean)
+                                                    .join(", ")}
+                                            </span>
+                                        )}
+
+                                        {doctor.experience > 0 && (
+                                            <span>{doctor.experience} yrs experience</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* BODY (SCROLLABLE) */}
+                        <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-5 min-h-0">
+
+                            {/* Professional Details */}
+                            <div>
+                                <h3 className="text-xs font-semibold uppercase text-gray-400 mb-3 flex items-center gap-2">
+                                    <span className="w-1 h-3.5 bg-blue-600 rounded-full" />
+                                    Professional Details
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {[
+                                        { label: "Qualification", value: doctor.qualification },
+                                        { label: "Hospital", value: doctor.hospital },
+                                        { label: "Registration number", value: doctor.registration_number },
+                                        { label: "Registration year", value: doctor.registration_year },
+                                        { label: "State medical council", value: doctor.state_medical_council },
+                                    ]
+                                        .filter((item) => item.value)
+                                        .map(({ label, value }) => (
+                                            <div
+                                                key={label}
+                                                className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3"
+                                            >
+                                                <p className="text-xs text-gray-400">{label}</p>
+                                                <p className="text-sm font-medium text-[#0a1628]">
+                                                    {value}
+                                                </p>
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+
+                            {/* Bio */}
+                            {doctor.bio && (
+                                <div>
+                                    <h3 className="text-xs font-semibold uppercase text-gray-400 mb-3 flex items-center gap-2">
+                                        <span className="w-1 h-3.5 bg-blue-600 rounded-full" />
+                                        About
+                                    </h3>
+
+                                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-4">
+                                        <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                                            {doctor.bio}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* FOOTER */}
+                        <div className="px-6 py-4 shrink-0 bg-white border-t border-gray-100">
+                            <button
+                                onClick={onClose}
+                                className="w-full py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
-      )}
-
-      {!loading && doctor && (
-        <>
-          {/* HERO — dark header matching platform */}
-          <div className="bg-[#0a1628] rounded-t-2xl px-6 py-7 relative overflow-hidden"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px)
-              `,
-              backgroundSize: "48px 48px",
-            }}
-          >
-            {/* Glow */}
-            <div className="absolute top-[-40px] right-[-40px] w-[180px] h-[180px] rounded-full bg-blue-600/15 blur-[60px] pointer-events-none" />
-
-            <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-
-              {/* Avatar */}
-              <div className="w-16 h-16 rounded-2xl bg-blue-900/50 border border-blue-700/30 overflow-hidden flex items-center justify-center shrink-0">
-                {doctor.profile_image_url ? (
-                  <img
-                    src={getImageUrl(doctor.profile_image_url)}
-                    className="w-full h-full object-cover"
-                    alt={doctor.name}
-                  />
-                ) : (
-                  <span className="text-2xl font-bold text-blue-300 capitalize">
-                    {doctor.name?.charAt(0)}
-                  </span>
-                )}
-              </div>
-
-              {/* Name + meta */}
-              <div className="text-center sm:text-left flex-1 min-w-0">
-                <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h2 className="text-lg font-bold text-white">{doctor.name}</h2>
-                  {doctor.status === "VERIFIED" && (
-                    <span className="inline-flex items-center gap-1 bg-green-500/20 border border-green-500/30 text-green-400 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 6L9 17l-5-5"/>
-                      </svg>
-                      Verified
-                    </span>
-                  )}
-                </div>
-
-                {doctor.specialty && (
-                  <p className="text-blue-300 text-sm font-medium mt-0.5">{doctor.specialty}</p>
-                )}
-
-                <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2.5">
-                  {(doctor.city || doctor.state) && (
-                    <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                      </svg>
-                      {[doctor.city, doctor.state].filter(Boolean).join(", ")}
-                    </span>
-                  )}
-                  {doctor.experience > 0 && (
-                    <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-                      </svg>
-                      {doctor.experience} yrs experience
-                    </span>
-                  )}
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* BODY */}
-          <div className="px-6 py-6 flex flex-col gap-5">
-
-            {/* Professional details grid */}
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3 flex items-center gap-2">
-                <span className="w-1 h-3.5 bg-blue-600 rounded-full" />
-                Professional Details
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { label: "Qualification", value: doctor.qualification },
-                  { label: "Hospital", value: doctor.hospital },
-                  { label: "Registration number", value: doctor.registration_number },
-                  { label: "Registration year", value: doctor.registration_year },
-                  { label: "State medical council", value: doctor.state_medical_council },
-                ].filter(({ value }) => value).map(({ label, value }) => (
-                  <div
-                    key={label}
-                    className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3"
-                  >
-                    <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-                    <p className="text-sm font-medium text-[#0a1628]">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Bio */}
-            {doctor.bio && (
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3 flex items-center gap-2">
-                  <span className="w-1 h-3.5 bg-blue-600 rounded-full" />
-                  About
-                </h3>
-                <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-4">
-                  <p className="text-sm text-gray-600 leading-relaxed">{doctor.bio}</p>
-                </div>
-              </div>
-            )}
-
-          </div>
-
-          {/* FOOTER */}
-          <div className="px-6 pb-6">
-            <button
-              onClick={onClose}
-              className="w-full py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50 transition"
-            >
-              Close
-            </button>
-          </div>
-
-        </>
-      )}
-
-    </div>
-  </div>
-);
+    );
 }
 
 export default DoctorProfileModal;

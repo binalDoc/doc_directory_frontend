@@ -206,8 +206,8 @@ function Home() {
                 <div className="flex flex-col gap-2 flex-1">
 
                   {doc.qualification && (
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-300">
+                    <div className="flex items-center gap-2 text-xs text-black">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-300">
                         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                       </svg>
                       <span className="truncate">{doc.qualification}</span>
@@ -215,8 +215,8 @@ function Home() {
                   )}
 
                   {(doc.city || doc.state) && (
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-300">
+                    <div className="flex items-center gap-2 text-xs text-black">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-300">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                       </svg>
                       <span className="truncate">{[doc.city, doc.state].filter(Boolean).join(", ")}</span>
@@ -224,8 +224,8 @@ function Home() {
                   )}
 
                   {doc.experience > 0 && (
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-300">
+                    <div className="flex items-center gap-2 text-xs text-black">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-300">
                         <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
                       </svg>
                       <span>{doc.experience} yrs experience</span>

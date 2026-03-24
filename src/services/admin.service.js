@@ -21,7 +21,7 @@ const updateDoctorStatus = async (id, status) => {
 
 const getAllUsers = async (filters) => {
     try {
-        const response = await AXIOS_INSTANCE.get(`${ADMIN_API}/users`, {params : filters});
+        const response = await AXIOS_INSTANCE.get(`${ADMIN_API}/users`, { params: filters });
         return response.data.result;
     } catch (error) {
         throw error;
@@ -55,13 +55,98 @@ const deleteUserByAdmin = async (id) => {
     }
 }
 
+const uploadBulkDoctors = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await AXIOS_INSTANCE.post(`${ADMIN_API}/bulk-doctors`, formData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const getProfileViewAnalyticsDashboard = async () => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/profile-view-dashboard`
+        );
+        return response.data.result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getDoctorViewCount = async (doctorId) => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/doctor/${doctorId}/views`
+        );
+        return response.data.result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getRecentViews = async (limit = 10) => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/recent-views`,
+            {
+                params: { limit },
+            }
+        );
+        return response.data.result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getMostViewedDoctors = async (limit = 10) => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/top-doctors`,
+            {
+                params: { limit },
+            }
+        );
+        return response.data.result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getViewsByDate = async () => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/views-by-date`
+        );
+        return response.data.result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 const adminService = {
+    // doctor
     updateDoctorStatus,
     getDoctorStatusCounts,
+
+    // users
     getAllUsers,
     createUserByAdmin,
     updateUserByAdmin,
-    deleteUserByAdmin
-}
+    deleteUserByAdmin,
+
+    // bulk
+    uploadBulkDoctors,
+
+    // analytics
+    getProfileViewAnalyticsDashboard,
+    getDoctorViewCount,
+    getRecentViews,
+    getMostViewedDoctors,
+    getViewsByDate,
+};
 
 export default adminService;

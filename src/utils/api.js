@@ -6,9 +6,6 @@ import { getAuthToken } from "./helper";
 
 const AXIOS_INSTANCE = axios.create({
     baseURL: API_BASE_URL,
-    headers: {
-        "Content-Type": "application/json",
-    }
 });
 
 AXIOS_INSTANCE.interceptors.request.use((config) => {

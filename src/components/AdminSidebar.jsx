@@ -15,6 +15,7 @@ function AdminSidebar() {
             { label: "Dashboard", path: "/admin" },
             { label: "Doctors", path: "/admin/doctors" },
             { label: "Users", path: "/admin/users" },
+            { label: "Views", path: "/admin/profile-views" }
           ].map((item) => (
             <button
               key={item.path}
@@ -64,6 +65,17 @@ function AdminSidebar() {
                   <path d="M17 20h5v-2a3 3 0 00-5.356-1.857" />
                   <path d="M7 20H2v-2a3 3 0 015.356-1.857" />
                   <circle cx="12" cy="8" r="4" />
+                </svg>
+              ),
+            },
+            {
+              path: "/admin/profile-views",
+              icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 3v18h18" />
+                  <rect x="7" y="10" width="3" height="7" />
+                  <rect x="12" y="6" width="3" height="11" />
+                  <rect x="17" y="13" width="3" height="4" />
                 </svg>
               ),
             },
@@ -126,6 +138,18 @@ function AdminSidebar() {
                     <path d="M17 20h5v-2a3 3 0 00-5.356-1.857" />
                     <path d="M7 20H2v-2a3 3 0 015.356-1.857" />
                     <circle cx="12" cy="8" r="4" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Profile view",
+                path: "/admin/profile-views",
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3v18h18" />
+                    <rect x="7" y="10" width="3" height="7" />
+                    <rect x="12" y="6" width="3" height="11" />
+                    <rect x="17" y="13" width="3" height="4" />
                   </svg>
                 ),
               },
