@@ -55,6 +55,7 @@ function ProfileViews() {
 
     const formattedData = viewsByDate.map(item => ({
         ...item,
+        views: Number(item.views),
         formattedDate: getIndianTime(item.date)
     }));
 
@@ -79,10 +80,24 @@ function ProfileViews() {
                                 <ResponsiveContainer width="100%" height={300}>
                                     <LineChart data={formattedData}>
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="formattedDate" />
+
+                                        <XAxis
+                                            dataKey="formattedDate"
+                                            tick={{ fontSize: 12 }}
+                                        />
+
                                         <YAxis />
-                                        <Tooltip />
-                                        <Line type="monotone" dataKey="views" />
+
+                                        <Tooltip
+                                            labelFormatter={(value) => `Date: ${value}`}
+                                        />
+
+                                        <Line
+                                            type="monotone"
+                                            dataKey="views"
+                                            strokeWidth={2}
+                                            dot={{ r: 4 }}
+                                        />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </div>

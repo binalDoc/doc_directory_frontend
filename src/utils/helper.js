@@ -93,9 +93,9 @@ export const getImageUrl = (path) => {
 };
 
 export const getIndianTime = (original_datetime) => {
-  const utcDate = new Date(original_datetime);
-  const istOptions = { timeZone: "Asia/Kolkata" };
-  const istDateString = utcDate.toLocaleString("en-IN", istOptions);
-
-  return istDateString;
-}
+  return new Date(original_datetime).toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short"
+  });
+};
