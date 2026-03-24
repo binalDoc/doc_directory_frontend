@@ -31,7 +31,7 @@ function Welcome() {
               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
           </div>
-          <span className="text-white text-xl font-semibold tracking-wide">DocDirectory</span>
+          <span className="hidden sm:block text-white text-xl font-semibold tracking-wide">DocDirectory</span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -63,11 +63,11 @@ function Welcome() {
       </nav>
 
       {/* HERO */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 sm:px-10 py-16 sm:py-24 text-center">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 sm:px-10 py-4 text-center">
 
         {/* Badge */}
         <div className="inline-flex items-center gap-2 border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-medium px-4 py-1.5 rounded-full mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+          <span className="hidden sm:block w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
           Trusted by 500+ verified healthcare professionals
         </div>
 
