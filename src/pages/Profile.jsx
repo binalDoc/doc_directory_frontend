@@ -95,11 +95,11 @@ function Profile() {
         if(value==="") value = null;
 
         if (name === "country_id") {
-            setForm(prev => ({ ...prev, country_id: sanitized, state_id: null, city_id: null }));
+            setProfile(prev => ({ ...prev, country_id: sanitized, state_id: null, city_id: null }));
         } else if (name === "state_id") {
-            setForm(prev => ({ ...prev, state_id: sanitized, city_id: null }));
+            setProfile(prev => ({ ...prev, state_id: sanitized, city_id: null }));
         } else {
-            setForm(prev => ({ ...prev, [name]: sanitized }));
+            setProfile(prev => ({ ...prev, [name]: sanitized }));
         }
     };
 
