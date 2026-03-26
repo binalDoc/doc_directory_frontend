@@ -214,12 +214,12 @@ function Home() {
                     </div>
                   )}
 
-                  {(doc.city || doc.state) && (
+                  {(doc.city_name || doc.state_name|| doc.country_name) && (
                     <div className="flex items-center gap-2 text-xs text-black">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-300">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                       </svg>
-                      <span className="truncate">{[doc.city, doc.state].filter(Boolean).join(", ")}</span>
+                      <span className="truncate">{[doc.city_name, doc.state_name, doc.country_name].filter(Boolean).join(", ")}</span>
                     </div>
                   )}
 

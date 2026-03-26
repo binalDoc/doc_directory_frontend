@@ -254,6 +254,7 @@ function UserFormModal({ user, onClose, onSuccess }) {
                                             <option key={c.id} value={c.id}>{c.name}</option>
                                         ))}
                                     </select>
+                                    {errors.country_id && <p className="text-red-500 text-xs">{errors.country_id}</p>}
                                 </div>
 
                                 {/* State */}

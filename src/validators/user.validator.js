@@ -2,7 +2,11 @@ export const userDataValidation = (payload) => {
     let errors = {};
 
     if (!payload.name) {
-        errors.name = "Nmae is required";
+        errors.name = "Name is required";
+    }
+
+    if (!payload.country_id) {
+        errors.country_id = "Country is required";
     }
 
     if (!payload.email) {

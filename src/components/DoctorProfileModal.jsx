@@ -96,9 +96,9 @@ function DoctorProfileModal({ doctorId, onClose }) {
                                     )}
 
                                     <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2 text-xs text-gray-400">
-                                        {(doctor.city || doctor.state) && (
+                                        {(doctor.city_name || doctor.state_name || doctor.country_name) && (
                                             <span>
-                                                {[doctor.city, doctor.state]
+                                                {[doctor.city_name, doctor.state_name, doctor.country_name]
                                                     .filter(Boolean)
                                                     .join(", ")}
                                             </span>
