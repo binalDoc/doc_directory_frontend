@@ -26,8 +26,6 @@ function Users() {
 
       const res = await adminService.getAllUsers({ page, limit });
       setList(res || []);
-      setTotal(res?.length || 0);
-
     } catch (err) {
       console.error(err);
     } finally {
@@ -91,7 +89,7 @@ function Users() {
                   <tbody>
                     {list.map((user, index) => (
                       <tr
-                        key={user.id}
+                        key={user.user_id}
                         className={`border-t border-gray-50 hover:bg-blue-50/30 transition ${index % 2 === 0 ? "bg-white" : "bg-gray-50/40"}`}
                       >
                         <td className="p-4 font-medium text-gray-800">{user.name}</td>
@@ -146,7 +144,7 @@ function Users() {
                 </div>
               )}
               {list.map((user) => (
-                <div key={user.id} className="bg-white rounded-2xl shadow border border-gray-100 p-4 flex flex-col gap-3">
+                <div key={user.user_id} className="bg-white rounded-2xl shadow border border-gray-100 p-4 flex flex-col gap-3">
                   {/* Top: name + role badge */}
                   <div className="flex items-start justify-between gap-2">
                     <div>

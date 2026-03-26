@@ -5,6 +5,10 @@ export const registerDataValidation = (payload) => {
         errors.name = "Name is required";
     }
 
+    if (!payload.country_id.trim()) {
+        errors.country_id = "Country is required";
+    }
+
     if (!payload.email) {
         errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(payload.email)) {

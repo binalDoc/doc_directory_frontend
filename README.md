@@ -172,7 +172,8 @@ doc_directory_backend/
     ├── routes/            # Express route definitions
     ├── utils/             # Helpers (JWT, Cloudinary, etc.)
     ├── validators/        # Pyalod validation
-    └── server.js
+    ├── configs/           # Access env variables, cloudinary, express, multer configs.
+    └── index.js            
 
 
 doc_directory_frontend/

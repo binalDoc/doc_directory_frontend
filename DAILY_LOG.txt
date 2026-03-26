@@ -69,5 +69,39 @@
   • Designed Admin Profile Views Analytics page (most viewed doctors, viewer log)
   • Structured and rewrote README with architecture diagram, API reference, DB design
   • Deployed frontend to Netlify and backend to Render
+
+----------------------------------------------------
+📅 24 Mar 2026 — Day 8: Bug Fixes & UI Improvements
+----------------------------------------------------
+  • Improved bulk upload backend logic with field-level checks and value validation
+    after Excel parsing, before DB insertion
+  • Fixed pagination issue on Admin Users page
+  • Improved mobile UI for Welcome page and Profile page (responsive layout fixes)
+  • Enhanced Admin Profile Views Analytics page:
+    - Replaced doctor ID with doctor name in view count chart
+    - Changed date format from raw UTC to human-readable format
+ 
+----------------------------------------------------
+📅 25 Mar 2026 — Day 9: NMC Verification & Specialty Improvements
+----------------------------------------------------
+  • Integrated NMC (National Medical Commission) verification API for
+    auto-verification of doctor profiles
+    - API is triggered whenever a doctor profile is updated, either by the
+      doctor themselves or by an admin
+    - Verification uses registration number, full name, state medical council,
+      and registration year to uniquely identify the doctor
+  • Changed specialty field on doctor profile from a free-text input to a
+    dropdown select, populated from a validated list of specialties
+    - Prevents typos and misleading/non-standard specialty values
+
+----------------------------------------------------
+📅 26 Mar 2026 — Day 10: Location Data, Profile Fields & Welcome Page
+----------------------------------------------------
+  • Seeded country, state, and city data into the database using an npm package
+  • Added country, state, and city fields to the user table
+  • Updated Profile, Register, and Admin User create/edit forms to include
+    the new location fields with proper dropdowns
+  • Refreshed Welcome page with a strong project motivation section explaining
+    the reasoning and purpose behind the platform
  
 ====================================================
