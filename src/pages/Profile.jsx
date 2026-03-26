@@ -84,7 +84,7 @@ function Profile() {
     }, [user]);
 
      const handleChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
 
         const intFields = ["country_id", "state_id", "city_id"];
 

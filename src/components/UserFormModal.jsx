@@ -94,7 +94,7 @@ function UserFormModal({ user, onClose, onSuccess }) {
     }, [form.state_id]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
 
         const intFields = ["country_id", "state_id", "city_id", "experience", "registration_year"];
 
