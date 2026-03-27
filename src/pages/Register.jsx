@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import authService from "../services/auth.service";
-import geographyService from "../services/geography.service";
 import { useAuth } from "../context/auth-context";
+import { useGeography } from "../context/geography-context";
 import { useNavigate } from "react-router-dom";
 import { registerDataValidation } from "../validators/auth.validator";
 import toaster from "../components/toaster";
@@ -24,79 +24,35 @@ function Register() {
         city_id: ""
     });
 
-    const [countries, setCountries] = useState([]);
-    const [states, setStates] = useState([]);
-    const [cities, setCities] = useState([]);
+    const {
+        countries,
+        states,
+        cities,
+        loadingCountries,
+        loadingStates,
+        loadingCities,
+        fetchStates,
+        fetchCities
+    } = useGeography();
 
-    const [loadingCountries, setLoadingCountries] = useState(false);
-    const [loadingStates, setLoadingStates] = useState(false);
-    const [loadingCities, setLoadingCities] = useState(false);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState({});
 
-    // Fetch countries on mount
+    //Country change → fetch states + reset
     useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                setLoadingCountries(true);
-                const result = await geographyService.getCountries();
-                setCountries(result || []);
-            } catch {
-                toaster.error("Failed to load countries");
-            } finally {
-                setLoadingCountries(false);
-            }
-        };
-        fetchCountries();
-    }, []);
-
-    // Fetch states when country changes
-    useEffect(() => {
-        if (!data.country_id) {
-            setStates([]);
-            setCities([]);
-            setData(prev => ({ ...prev, state_id: "", city_id: "" }));
-            return;
+        if (data.country_id) {
+            fetchStates(data.country_id);
         }
-        const fetchStates = async () => {
-            try {
-                setLoadingStates(true);
-                setStates([]);
-                setCities([]);
-                setData(prev => ({ ...prev, state_id: "", city_id: "" }));
-                const result = await geographyService.getStates(data.country_id);
-                setStates(result || []);
-            } catch {
-                toaster.error("Failed to load states");
-            } finally {
-                setLoadingStates(false);
-            }
-        };
-        fetchStates();
+        setData(prev => ({ ...prev, state_id: "", city_id: "" }));
     }, [data.country_id]);
 
-    // Fetch cities when state changes
+    //State change → fetch cities + reset
     useEffect(() => {
-        if (!data.state_id) {
-            setCities([]);
-            setData(prev => ({ ...prev, city_id: "" }));
-            return;
+        if (data.state_id) {
+            fetchCities(data.state_id);
         }
-        const fetchCities = async () => {
-            try {
-                setLoadingCities(true);
-                setCities([]);
-                setData(prev => ({ ...prev, city_id: "" }));
-                const result = await geographyService.getCities(data.state_id);
-                setCities(result || []);
-            } catch {
-                toaster.error("Failed to load cities");
-            } finally {
-                setLoadingCities(false);
-            }
-        };
-        fetchCities();
+        setData(prev => ({ ...prev, city_id: "" }));
     }, [data.state_id]);
 
     const handleChange = (e) => {

@@ -4,6 +4,7 @@ import geographyService from "../services/geography.service";
 import toaster from "./toaster";
 import { userDataValidation } from "../validators/user.validator";
 import { MSD_STATE_COUNCILS, YEARS } from "../constants/app.constant";
+import { useGeography } from "../context/geography-context";
 
 function UserFormModal({ user, onClose, onSuccess }) {
     const isEdit = !!user;
@@ -33,64 +34,29 @@ function UserFormModal({ user, onClose, onSuccess }) {
     const [errors, setErrors] = useState({});
 
     // Geography
-    const [countries, setCountries] = useState([]);
-    const [states, setStates] = useState([]);
-    const [cities, setCities] = useState([]);
-    const [loadingStates, setLoadingStates] = useState(false);
-    const [loadingCities, setLoadingCities] = useState(false);
+    const {
+        countries,
+        states,
+        cities,
+        loadingCountries,
+        loadingStates,
+        loadingCities,
+        fetchStates,
+        fetchCities
+    } = useGeography();
 
-    // Load countries on mount
+    //Country change → fetch states + reset
     useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                const result = await geographyService.getCountries();
-                setCountries(result || []);
-            } catch {
-                toaster.error("Failed to load countries");
-            }
-        };
-        fetchCountries();
-    }, []);
-
-    // If editing, pre-load states for the user's existing country
-    useEffect(() => {
-        if (!form.country_id) {
-            setStates([]);
-            setCities([]);
-            return;
+        if (form.country_id) {
+            fetchStates(form.country_id);
         }
-        const fetchStates = async () => {
-            try {
-                setLoadingStates(true);
-                const result = await geographyService.getStates(form.country_id);
-                setStates(result || []);
-            } catch {
-                toaster.error("Failed to load states");
-            } finally {
-                setLoadingStates(false);
-            }
-        };
-        fetchStates();
     }, [form.country_id]);
 
-    // If editing, pre-load cities for the user's existing state
+    //State change → fetch cities + reset
     useEffect(() => {
-        if (!form.state_id) {
-            setCities([]);
-            return;
+        if (form.state_id) {
+            fetchCities(form.state_id);
         }
-        const fetchCities = async () => {
-            try {
-                setLoadingCities(true);
-                const result = await geographyService.getCities(form.state_id);
-                setCities(result || []);
-            } catch {
-                toaster.error("Failed to load cities");
-            } finally {
-                setLoadingCities(false);
-            }
-        };
-        fetchCities();
     }, [form.state_id]);
 
     const handleChange = (e) => {
@@ -241,19 +207,26 @@ function UserFormModal({ user, onClose, onSuccess }) {
 
                                 {/* Country */}
                                 <div className="space-y-1">
-                                    <label className="block text-sm text-gray-400">Country</label>
+                                    <label className={`block text-sm ${!form.country_id ? "text-gray-300" : "text-gray-400"}`}>
+                                        Country
+                                    </label>
                                     <select
                                         name="country_id"
-                                        value={form?.country_id || ""}
+                                        value={form.country_id}
                                         onChange={handleChange}
+                                        disabled={loadingCountries || isEdit}
                                         className={selectClass(false)}
-                                        disabled={isEdit}
                                     >
-                                        <option value="">Select country</option>
+                                        <option value="">
+                                            {loadingCountries ? "Loading countries..." : "Select country"}
+                                        </option>
                                         {countries.map(c => (
                                             <option key={c.id} value={c.id}>{c.name}</option>
                                         ))}
                                     </select>
+                                    {loadingCountries && (
+                                        <span className="absolute right-3 top-1/3 w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin" />
+                                    )}
                                     {errors.country_id && <p className="text-red-500 text-xs">{errors.country_id}</p>}
                                 </div>
 
@@ -265,7 +238,7 @@ function UserFormModal({ user, onClose, onSuccess }) {
                                     <div className="relative">
                                         <select
                                             name="state_id"
-                                            value={form?.state_name || form?.state_id || ""}
+                                            value={form?.state_id || ""}
                                             onChange={handleChange}
                                             disabled={!form.country_id || loadingStates}
                                             className={selectClass(!form.country_id || loadingStates)}
@@ -291,7 +264,7 @@ function UserFormModal({ user, onClose, onSuccess }) {
                                     <div className="relative">
                                         <select
                                             name="city_id"
-                                            value={form?.city_name || form?.city_id || ""}
+                                            value={form?.city_id || ""}
                                             onChange={handleChange}
                                             disabled={!form.state_id || loadingCities}
                                             className={selectClass(!form.state_id || loadingCities)}

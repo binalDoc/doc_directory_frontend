@@ -1,12 +1,12 @@
 import { useAuth } from "../context/auth-context";
 import pharmaService from "../services/pharma.service";
 import doctorService from "../services/doctor.service";
-import geographyService from "../services/geography.service";
 import { useEffect, useState } from "react";
 import toaster from "../components/toaster";
 import Loading from "../components/Loading";
 import { MSD_STATE_COUNCILS, YEARS, SPECIALTIES } from "../constants/app.constant";
 import { getImageUrl } from "../utils/helper";
+import { useGeography } from "../context/geography-context";
 
 function Profile() {
     const { user, login } = useAuth();
@@ -17,11 +17,15 @@ function Profile() {
     const [profileSave, setProfileSave] = useState(false);
     const [error, setError] = useState("");
 
-    // Geography
-    const [states, setStates] = useState([]);
-    const [cities, setCities] = useState([]);
-    const [loadingStates, setLoadingStates] = useState(false);
-    const [loadingCities, setLoadingCities] = useState(false);
+
+    const {
+        states,
+        cities,
+        loadingStates,
+        loadingCities,
+        fetchStates,
+        fetchCities
+    } = useGeography();
 
     const fetchProfile = async () => {
         try {
@@ -38,52 +42,25 @@ function Profile() {
         }
     };
 
-    // Fetch states when country_id is set on profile
+    //Country change → fetch states + reset
     useEffect(() => {
-        if (!profile.country_id) {
-            setStates([]);
-            setCities([]);
-            return;
+        if (profile.country_id) {
+            fetchStates(profile.country_id);
         }
-        const fetchStates = async () => {
-            try {
-                setLoadingStates(true);
-                const result = await geographyService.getStates(profile.country_id);
-                setStates(result || []);
-            } catch {
-                toaster.error("Failed to load states");
-            } finally {
-                setLoadingStates(false);
-            }
-        };
-        fetchStates();
     }, [profile.country_id]);
 
-    // Fetch cities when state_id is set on profile
+    //State change → fetch cities + reset
     useEffect(() => {
-        if (!profile.state_id) {
-            setCities([]);
-            return;
+        if (profile.state_id) {
+            fetchCities(profile.state_id);
         }
-        const fetchCities = async () => {
-            try {
-                setLoadingCities(true);
-                const result = await geographyService.getCities(profile.state_id);
-                setCities(result || []);
-            } catch {
-                toaster.error("Failed to load cities");
-            } finally {
-                setLoadingCities(false);
-            }
-        };
-        fetchCities();
     }, [profile.state_id]);
 
     useEffect(() => {
         if (user) fetchProfile();
     }, [user]);
 
-     const handleChange = (e) => {
+    const handleChange = (e) => {
         let { name, value } = e.target;
 
         const intFields = ["country_id", "state_id", "city_id"];
@@ -92,7 +69,7 @@ function Profile() {
             ? (value === "" ? null : parseInt(value))
             : value;
 
-        if(value==="") value = null;
+        if (value === "") value = null;
 
         if (name === "country_id") {
             setProfile(prev => ({ ...prev, country_id: sanitized, state_id: null, city_id: null }));
@@ -145,7 +122,6 @@ function Profile() {
             setLoading(false);
         }
     };
-
     // Shared field styles
     const fieldClass = (editable = true) =>
         `w-full border px-3 py-2.5 rounded-xl text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400
@@ -334,7 +310,7 @@ function Profile() {
                                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium
                                         ${profile.role === "DOCTOR" ? "bg-blue-100 text-blue-700"
                                             : profile.role === "PHARMA" ? "bg-green-100 text-green-700"
-                                            : "bg-purple-100 text-purple-700"}`}>
+                                                : "bg-purple-100 text-purple-700"}`}>
                                         {profile.role}
                                     </span>
                                 </div>
