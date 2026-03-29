@@ -1,6 +1,6 @@
 # DocDirectory — Doctor Directory & Admin Management System
 
-> A full-stack healthcare platform to **discover and manage verified medical professionals** — built with a powerful admin panel for user lifecycle and verification management.
+A full-stack healthcare platform to **discover and manage verified medical professionals** — built with a powerful admin panel for user lifecycle and verification management.
 
 **Live Demo:** [https://doctordirectory.netlify.app/](https://doctordirectory.netlify.app/)
 
@@ -24,7 +24,7 @@
 
 ## Overview
 
-**DocDirectory** is a production-ready web application designed to bridge patients, healthcare professionals, and pharmaceutical companies. The platform supports full doctor profile discovery with rich filtering, a role-based authentication system, and a dedicated admin panel for user management and doctor verification workflows.
+**DocDirectory** is a production-ready web application designed to bridge patients, healthcare professionals, and pharmaceutical companies. The platform supports full doctor profile discovery with rich filtering, a role-based authentication system, and a dedicated admin panel for user management, doctor verification workflows, and analytics.
 
 ---
 
@@ -42,12 +42,23 @@
   - `PHARMA` — Pharmaceutical company representatives
   - `ADMIN` — Full platform management access
 
+### Doctor Profile & Verification
+- **NMC API Integration** — Auto-verification triggered on every doctor profile update (by doctor or admin); uses registration number, name, state medical council, and registration year to uniquely identify the doctor
+- **Profile Completion Bar** — Visual indicator of how complete a doctor's profile is
+
+### Platform Globalization
+- **Country / State / City fields** on all user profiles, powered by the `country-state-city` npm package
+- Location fields integrated across registration, profile edit, and admin user create/edit forms
+- Seeded location data stored in the database for consistent, validated options
+
 ### Admin Panel
 - **User Management** — Create, view, update, and delete users across all roles
 - **Dynamic Role Forms** — Context-aware forms that adapt based on selected user role
 - **Doctor Verification Workflow** — Structured status transitions: `PENDING → VERIFIED` or `PENDING → REJECTED`
-- **Filtering & Search** — Filter doctors by verification status, specialty, and more
-- **Profile Preview** — View full doctor profiles directly in a modal without leaving the panel
+- **Bulk Doctor Upload** — Import doctors via Excel file with per-row validation and error reporting
+- **Filtering & Search** — Filter doctors by verification status, specialty, location, and more
+- **Profile Views Dashboard** — Most viewed doctors, viewer activity log, and view trends over time
+- **Search Analytics Dashboard** — Tracks and visualizes what users are searching for across the platform
 
 ---
 
@@ -59,6 +70,8 @@
 | **Backend** | Node.js, Express.js |
 | **Database** | PostgreSQL (hosted on [Neon](https://neon.tech)) |
 | **Image Storage** | [Cloudinary](https://cloudinary.com) |
+| **Location Data** | [`country-state-city`](https://www.npmjs.com/package/country-state-city) npm package |
+| **NMC Verification** | National Medical Commission (NMC) API |
 | **Frontend Hosting** | [Netlify](https://netlify.com) |
 | **Backend Hosting** | [Render](https://render.com) |
 
@@ -72,12 +85,17 @@
 │   (Netlify / Vite)      │  HTTP  │       (Render)           │
 └─────────────────────────┘        └────────────┬─────────────┘
                                                 │
-                              ┌─────────────────┼──────────────┐
-                              │                 │              │
-                    ┌─────────▼──────┐  ┌───────▼──────┐  ┌───▼────────┐
-                    │  PostgreSQL DB  │  │  Cloudinary  │  │  JWT Auth  │
-                    │  (Neon Cloud)  │  │  (Images)    │  │  Middleware│
-                    └───────────────┘  └──────────────┘  └────────────┘
+                              ┌─────────────────┼───────────────────┐
+                              │                 │                   │
+                    ┌─────────▼──────┐  ┌───────▼──────┐  ┌────────▼───────┐
+                    │  PostgreSQL DB  │  │  Cloudinary  │  │   NMC API      │
+                    │  (Neon Cloud)  │  │  (Images)    │  │ (Verification) │
+                    └───────────────┘  └──────────────┘  └────────────────┘
+                              │
+                    ┌─────────▼──────┐
+                    │   JWT Auth     │
+                    │   Middleware   │
+                    └───────────────┘
 ```
 
 ---
@@ -88,10 +106,11 @@
 
 | Table | Purpose |
 |---|---|
-| `users` | Core user data shared across all roles (email, password, role, etc.) |
-| `doctor_profiles` | Doctor-specific fields — specialty, experience, license, verification status |
+| `users` | Core user data shared across all roles (email, password, role, country, state, city, etc.) |
+| `doctor_profiles` | Doctor-specific fields — specialty, experience, license, NMC verification status |
 | `pharma_profiles` | Pharmaceutical company details and representative info |
 | `profile_views` | Tracks which users viewed which doctor profiles (analytics) |
+| `search_analytics` | Logs search queries and filters used across the platform |
 
 ### Indexes
 
@@ -100,11 +119,13 @@ Optimized for fast lookups and filtered queries:
 - `users.email` — unique index for auth lookups
 - `doctor_profiles` — composite index on `state`, `city`, `specialty`, `experience`, `status`
 - `profile_views` — indexed for aggregation and analytics queries
+- `search_analytics` — indexed for trend aggregation and time-series queries
 
 ### Key Design Patterns
 
 - **Role-based joins** — `users` table joins with the appropriate profile table based on role
-- **Status-based verification** — Doctors go through a controlled `PENDING → VERIFIED / REJECTED` workflow
+- **Status-based verification** — Doctors go through a controlled `PENDING → VERIFIED / REJECTED` workflow, with NMC API auto-verification triggered on every profile update
+- **Validated dropdowns** — Specialty values and location fields are constrained to predefined, validated options
 - **Pagination-ready** — All list endpoints are designed to support limit/offset pagination
 
 ---
@@ -152,6 +173,7 @@ JWT_SECRET=your_jwt_secret_key
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
+NMC_API_URL=your_nmc_api_endpoint
 ```
 
 ### Frontend — `/frontend/.env`
@@ -170,8 +192,8 @@ doc_directory_backend/
     ├── middleware/        # Auth, role guards
     ├── models/            # DB queries & schema helpers
     ├── routes/            # Express route definitions
-    ├── utils/             # Helpers (JWT, Cloudinary, etc.)
-    ├── validators/        # Pyalod validation
+    ├── utils/             # Helpers (JWT, Cloudinary, NMC verification, etc.)
+    ├── validators/        # Payload validation
     ├── configs/           # Access env variables, cloudinary, express, multer configs.
     └── index.js            
 
@@ -194,9 +216,11 @@ doc_directory_frontend/
 | View doctor profiles | ✅ | ✅ | ✅ |
 | Edit own profile | ✅ | ✅ | ✅ |
 | Search & filter doctors | ✅ | ✅ | ✅ |
+| Export doctor data | ❌ | ✅ | ✅ |
 | Manage all users | ❌ | ❌ | ✅ |
 | Verify / reject doctors | ❌ | ❌ | ✅ |
 | View profile analytics | ❌ | ❌ | ✅ |
+| View search analytics | ❌ | ❌ | ✅ |
 
 ---
 
@@ -219,6 +243,14 @@ doc_directory_frontend/
 | `GET` | `/api/admin/recent-views` | Latest profile view activity log |
 | `GET` | `/api/admin/views-by-date` | View counts grouped by date (trend) |
 | `GET` | `/api/admin/doctor/:doctorId/views` | View count for a specific doctor |
+| `POST` | `/api/analytics/search` | Log a search query event |
+| `GET` | `/api/admin/search-analytics` | Search analytics dashboard summary |
+| `GET` | `/api/admin/search-analytics/trends` | Search query trends over time |
+| `GET` | `/api/location/countries` | List all countries |
+| `GET` | `/api/location/states/:countryCode` | List states for a country |
+| `GET` | `/api/location/cities/:stateCode` | List cities for a state |
+
+---
 
 ## AI Usage
 
@@ -231,5 +263,6 @@ This project was built with assistance from **ChatGPT** and **Claude**. Here's h
 | **Cloudinary Integration** | Image upload setup, signed upload config, handling upload responses |
 | **Bulk Upload Feature** | Excel file parsing logic, per-row error handling, API response structure |
 | **Drag & Drop UI** | Drag-and-drop file zone implementation, file input reset bug fix |
+| **Search Analytics** | Aggregation queries, dashboard data shaping |
 
 > All AI-generated suggestions were reviewed, understood, and integrated manually. The architecture decisions, database design, and overall product direction were made independently.

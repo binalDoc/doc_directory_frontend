@@ -103,5 +103,29 @@
     the new location fields with proper dropdowns
   • Refreshed Welcome page with a strong project motivation section explaining
     the reasoning and purpose behind the platform
+
+----------------------------------------------------
+📅 27 Mar 2026 — Day 11: Platform Globalization & Specialty Standardization
+----------------------------------------------------
+• Globalized the platform by integrating country, state, and city fields
+    across the user model, APIs, and all related frontend/backend logic
+  • Replaced raw text specialty input with a structured dropdown of predefined
+    specialty options throughout the platform
+  • Reworked doctor verification workflow to a two-step process:
+    - Step 1: NMC API runs auto-verification on every profile update, setting
+      an nmc_verified flag (TRUE/FALSE)
+    - Step 2: Admin can only approve or reject a doctor after NMC verification
+      has passed — doctors with a FALSE nmc_verified status are blocked from
+      admin approval
+    - Final doctor status (VERIFIED) is only set after both NMC check passes
+      and admin explicitly approves
  
+----------------------------------------------------
+📅 28 Mar 2026 — Day 12: Search Analytics — Full Stack
+----------------------------------------------------
+  • Designed search analytics table schema (DB level)
+  • Built API routes, model queries, and controller logic for search analytics
+    data capture and retrieval
+  • Built Search Analytics dashboard for admin to visualize search trends
+  
 ====================================================
