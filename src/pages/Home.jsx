@@ -21,7 +21,8 @@ function Home() {
     country_id: "",
     state_id: "",
     city_id: "",
-    minExperience: ""
+    minExperience: "",
+    status: "VERIFIED"
   });
 
   const {
