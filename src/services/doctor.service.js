@@ -19,7 +19,7 @@ const getDoctorProfile = async () => {
     }
 }
 
-const getDoctorProfileById = async(id) => {
+const getDoctorProfileById = async (id) => {
     try {
         const response = await AXIOS_INSTANCE.get(`${DOCTOR_API}/${id}`);
         return response.data.result;
@@ -50,12 +50,25 @@ const uploadDoctorImage = async (formData) => {
     return response.data.result;
 }
 
+const exportDoctors = async (filters) => {
+    try {
+        const response = await AXIOS_INSTANCE(`${DOCTOR_API}/export`, {
+            responseType: 'blob',
+            params: filters
+        });
+        return response;
+    } catch (error) {
+        throw error;
+    }
+}
+
 const doctorService = {
     getDoctors,
     getDoctorProfile,
     getDoctorProfileById,
     updateDoctorProfile,
-    uploadDoctorImage
+    uploadDoctorImage,
+    exportDoctors
 }
 
 export default doctorService;

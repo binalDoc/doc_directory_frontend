@@ -127,6 +127,55 @@ const getViewsByDate = async () => {
     }
 };
 
+const getSearchAnalyticsSummary = async () => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/search-analytics/summary`
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getTopSearchTerms = async (limit = 10) => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/search-analytics/top-searches`,
+            {
+                params: { limit },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getRecentSearches = async (params) => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/search-analytics/recent`,
+            {params}
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getSearchesByDate = async (params) => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/search-analytics/by-date`,
+            {params}
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 const adminService = {
     // doctor
     updateDoctorStatus,
@@ -147,6 +196,12 @@ const adminService = {
     getRecentViews,
     getMostViewedDoctors,
     getViewsByDate,
+
+    //search-analytics
+    getSearchAnalyticsSummary,
+    getTopSearchTerms,
+    getRecentSearches,
+    getSearchesByDate
 };
 
 export default adminService;

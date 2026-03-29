@@ -19,6 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import DoctorsList from "./pages/DoctorsList.jsx";
 import Users from "./pages/Users.jsx";
 import ProfileViews from "./pages/ProfileViews.jsx";
+import SearchAnalytics from "./pages/SearchAnalytics.jsx";
 
 function App() {
   const { user, logout } = useAuth();
@@ -118,6 +119,14 @@ function App() {
           element={
             <AdminRoute>
               <ProfileViews />
+            </AdminRoute>
+          }
+        />
+         <Route
+          path="/admin/search-analytics"
+          element={
+            <AdminRoute>
+              <SearchAnalytics />
             </AdminRoute>
           }
         />

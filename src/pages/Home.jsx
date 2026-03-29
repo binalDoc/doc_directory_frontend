@@ -5,11 +5,15 @@ import { getImageUrl } from "../utils/helper";
 import DoctorProfileModal from "../components/DoctorProfileModal";
 import { SPECIALTIES } from "../constants/app.constant";
 import { useGeography } from "../context/geography-context";
+import { useAuth } from "../context/auth-context";
 
 function Home() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const { user } = useAuth();
 
   const [filters, setFilters] = useState({
     name: "",
@@ -34,12 +38,12 @@ function Home() {
   const [page, setPage] = useState(1);
   const limit = 8;
 
-  const fetchDoctorList = async () => {
+  const fetchDoctorList = async (customFilters = filters) => {
     try {
       setLoading(true);
       const cleanFilters = Object.fromEntries(
         Object.entries({
-          ...filters,
+          ...customFilters,
           page,
           limit,
           status: "VERIFIED"
@@ -77,10 +81,65 @@ function Home() {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   }
 
+  const handleResetFilters = () => {
+    const reset = {
+      name: "",
+      specialty: "",
+      country_id: "",
+      state_id: "",
+      city_id: "",
+      minExperience: ""
+    };
+
+    setFilters(reset);
+    setPage(1);
+    fetchDoctorList(reset);
+  };
+
   const handleSearch = () => {
     setPage(1);
     fetchDoctorList()
   }
+
+  const handleExportDoctors = async () => {
+    setIsDownloading(true);
+
+    try {
+      const response = await doctorService.exportDoctors(filters);
+
+      const mimeType = response.headers["content-type"] || "application/octet-stream";
+      const finalMimeType = mimeType.split(";")[0].trim();
+
+      const blob = new Blob([response.data], { type: finalMimeType });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+
+      let filename = "doctors_export";
+
+      const mimeToExt = {
+        "application/pdf": ".pdf",
+        "text/csv": ".csv",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx"
+      };
+
+      filename += mimeToExt[finalMimeType] || ".file";
+
+      a.download = filename;
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f0f4ff] flex flex-col">
@@ -119,6 +178,7 @@ function Home() {
             <div className="flex-1 relative">
               <input
                 name="name"
+                value={filters?.name || ""}
                 placeholder="Doctor name..."
                 onChange={handleChange}
                 className="w-full pl-9 pr-4 py-2.5 text-sm focus:outline-none rounded-xl"
@@ -128,6 +188,7 @@ function Home() {
             <div className="flex-1 relative">
               <select
                 name="specialty"
+                value={filters?.specialty || ""}
                 onChange={handleChange}
                 className="w-full pl-3 pr-4 py-2.5 text-sm text-gray-800 focus:outline-none rounded-xl"
               >
@@ -137,12 +198,21 @@ function Home() {
                 ))}
               </select>
             </div>
-            <button
-              onClick={handleSearch}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm whitespace-nowrap"
-            >
-              Search →
-            </button>
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={handleSearch}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-3 rounded-xl transition font-medium"
+              >
+                Search
+              </button>
+
+              <button
+                onClick={handleResetFilters}
+                className="bg-gray-300 hover:bg-gray-400 text-black text-xs px-4 py-3 rounded-xl transition font-medium"
+              >
+                Reset
+              </button>
+            </div>
           </div>
 
           {/* Secondary filters */}
@@ -193,6 +263,7 @@ function Home() {
             {/* Experience */}
             <input
               name="minExperience"
+              value={filters.minExperience}
               placeholder="Min exp (yrs)"
               type="number"
               onChange={handleChange}
@@ -221,6 +292,17 @@ function Home() {
                 : <><span className="font-semibold text-gray-800">{list.length}</span> doctor{list.length !== 1 ? "s" : ""} found</>
               }
             </p>
+
+            {(user.role === "PHARMA" || user.role === "ADMIN") && (<button
+              onClick={handleExportDoctors}
+              disabled={isDownloading || list.length === 0}
+              title={"Export doctors"}
+              className="px-4 py-2 rounded-xl text-xs font-semibold transition shadow-sm disabled:cursor-not-allowed disabled:bg-blue-300
+                  bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isDownloading ? "Exporting..." : "Export"}
+            </button>
+            )}
           </div>
         )}
 

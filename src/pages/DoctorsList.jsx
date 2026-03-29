@@ -4,8 +4,8 @@ import adminService from "../services/admin.service";
 import doctorService from "../services/doctor.service";
 import Loading from "../components/Loading";
 import DoctorProfileModal from "../components/DoctorProfileModal";
-import toaster from "../components/toaster";
 import BulkUploadModal from "../components/BulkUploadModal";
+import { SPECIALTIES } from "../constants/app.constant";
 
 export const CheckIcon = ({ size = 14 }) => (
   <svg
@@ -88,10 +88,10 @@ export const EyeIcon = ({ size = 16 }) => (
 function DoctorsList() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const [filters, setFilters] = useState({
     name: "",
-    state: "",
     specialty: ""
   });
 
@@ -100,7 +100,6 @@ function DoctorsList() {
   const limit = 10;
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
   const [showBulkModal, setShowBulkModal] = useState(false);
-
 
   const fetchDoctors = async () => {
     try {
@@ -143,6 +142,53 @@ function DoctorsList() {
     }
   };
 
+  const handleExportDoctors = async () => {
+    setIsDownloading(true);
+
+    try {
+      const cleanFilters = Object.fromEntries(
+        Object.entries({
+          ...filters,
+          status
+        }).filter(([_, v]) => v !== "")
+      );
+
+      const response = await doctorService.exportDoctors(cleanFilters);
+
+      const mimeType = response.headers["content-type"] || "application/octet-stream";
+      const finalMimeType = mimeType.split(";")[0].trim();
+
+      const blob = new Blob([response.data], { type: finalMimeType });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+
+      let filename = "doctors_export";
+
+      const mimeToExt = {
+        "application/pdf": ".pdf",
+        "text/csv": ".csv",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx"
+      };
+
+      filename += mimeToExt[finalMimeType] || ".file";
+
+      a.download = filename;
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
 
   return (
     <AdminLayout>
@@ -173,13 +219,13 @@ function DoctorsList() {
           </a>
         </div>
 
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide items-center">
           {["", "PENDING", "VERIFIED", "REJECTED"].map((s) => (
             <button
               key={s}
               onClick={() => { setStatus(s); setPage(1); }}
               className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition font-medium
-              ${status === s
+        ${status === s
                   ? "bg-blue-600 text-white shadow"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
@@ -187,6 +233,14 @@ function DoctorsList() {
               {s || "ALL"}
             </button>
           ))}
+
+          <button
+            onClick={handleExportDoctors}
+            disabled={isDownloading || list.length === 0}
+            className="ml-auto px-4 py-2 bg-white text-black border border-gray-400 text-sm rounded-lg disabled:opacity-50 whitespace-nowrap"
+          >
+            {isDownloading ? "Exporting..." : "Export Doctors"}
+          </button>
         </div>
 
         <div className="bg-white p-3 rounded-2xl shadow mb-6 flex flex-col sm:flex-row gap-3">
@@ -196,18 +250,17 @@ function DoctorsList() {
             onChange={handleChange}
             className="border px-3 py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none text-sm"
           />
-          <input
-            name="state"
-            placeholder="State"
-            onChange={handleChange}
-            className="border px-3 py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none text-sm"
-          />
-          <input
+          <select
             name="specialty"
-            placeholder="Specialty"
+            value={filters.specialty}
             onChange={handleChange}
-            className="border px-3 py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none text-sm"
-          />
+            className="border px-3 py-2 rounded-lg w-full text-sm"
+          >
+            <option value="">Select Specialty</option>
+            {SPECIALTIES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
           <button
             onClick={handleSearch}
             className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm whitespace-nowrap"

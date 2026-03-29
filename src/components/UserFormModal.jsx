@@ -3,7 +3,7 @@ import adminService from "../services/admin.service";
 import geographyService from "../services/geography.service";
 import toaster from "./toaster";
 import { userDataValidation } from "../validators/user.validator";
-import { MSD_STATE_COUNCILS, YEARS } from "../constants/app.constant";
+import { MSD_STATE_COUNCILS, YEARS, SPECIALTIES } from "../constants/app.constant";
 import { useGeography } from "../context/geography-context";
 
 function UserFormModal({ user, onClose, onSuccess }) {
@@ -294,13 +294,17 @@ function UserFormModal({ user, onClose, onSuccess }) {
 
                                 <div className="space-y-1">
                                     <label className="block text-sm text-gray-400">Specialty</label>
-                                    <input
+                                    <select
                                         name="specialty"
-                                        placeholder="Specialty"
-                                        value={form.specialty}
+                                        value={form?.specialty || ""}
                                         onChange={handleChange}
-                                        className={inputClass(errors.specialty)}
-                                    />
+                                        className="w-full pl-3 pr-4 py-2.5 text-sm text-gray-800 focus:outline-none rounded-xl"
+                                    >
+                                        <option value="">Select specialty</option>
+                                        {SPECIALTIES.map((s) => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
+                                    </select>
                                     {errors.specialty && <p className="text-red-500 text-xs">{errors.specialty}</p>}
                                 </div>
 

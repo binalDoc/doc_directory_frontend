@@ -15,7 +15,8 @@ function AdminSidebar() {
             { label: "Dashboard", path: "/admin" },
             { label: "Doctors", path: "/admin/doctors" },
             { label: "Users", path: "/admin/users" },
-            { label: "Views", path: "/admin/profile-views" }
+            { label: "Views", path: "/admin/profile-views" },
+            { label: "Search Analytics",  path: "/admin/search-analytics" }
           ].map((item) => (
             <button
               key={item.path}
@@ -79,6 +80,15 @@ function AdminSidebar() {
                 </svg>
               ),
             },
+            {
+              path: "/admin/search-analytics",
+              icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.3-4.3" />
+                </svg>
+              ),
+            }
           ].map((item) => (
             <button
               key={item.path}
@@ -150,6 +160,16 @@ function AdminSidebar() {
                     <rect x="7" y="10" width="3" height="7" />
                     <rect x="12" y="6" width="3" height="11" />
                     <rect x="17" y="13" width="3" height="4" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Search Analytics",
+                path: "/admin/search-analytics",
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="M21 21l-4.3-4.3" />
                   </svg>
                 ),
               },
