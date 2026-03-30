@@ -96,6 +96,7 @@ function DoctorsList() {
   });
 
   const [status, setStatus] = useState("");
+  const [nmc_verified, setNmcVerified] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 10;
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
@@ -109,7 +110,8 @@ function DoctorsList() {
         ...filters,
         page,
         limit,
-        status
+        status,
+        nmc_verified
       }
       const result = await doctorService.getDoctors(params);
       setList(result?.doctor_list || []);
@@ -122,7 +124,7 @@ function DoctorsList() {
 
   useEffect(() => {
     fetchDoctors();
-  }, [page, status]);
+  }, [page, status, nmc_verified]);
 
   const handleChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -189,7 +191,6 @@ function DoctorsList() {
     }
   };
 
-
   return (
     <AdminLayout>
       <div className="w-full max-w-7xl mx-auto">
@@ -223,7 +224,7 @@ function DoctorsList() {
           {["", "PENDING", "VERIFIED", "REJECTED"].map((s) => (
             <button
               key={s}
-              onClick={() => { setStatus(s); setPage(1); }}
+              onClick={() => { setStatus(s); setPage(1); setNmcVerified(false) }}
               className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition font-medium
         ${status === s
                   ? "bg-blue-600 text-white shadow"
@@ -233,6 +234,17 @@ function DoctorsList() {
               {s || "ALL"}
             </button>
           ))}
+
+          <button
+            onClick={() => {setNmcVerified((prev)=>!prev), setStatus("")}}
+            className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition font-medium
+        ${nmc_verified
+                ? "bg-blue-600 text-white shadow"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+          >
+            NMC VERIFIED
+          </button>
 
           <button
             onClick={handleExportDoctors}

@@ -212,7 +212,7 @@ function BulkUploadModal({ onClose, onSuccess }) {
                             <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-100">
                                 <span className="text-amber-500 mt-0.5">💡</span>
                                 <p className="text-xs text-amber-700">
-                                    Make sure your file follows the required template format with columns: <strong>name, email, password, specialty, city, state, experience, registration_number, registration_year</strong>.
+                                    Make sure your file follows the required template format with columns: <strong>name, email, password, specialty, country_id, city_id, state_id, experience, registration_number, registration_year</strong>.
                                 </p>
                             </div>
                         </>
