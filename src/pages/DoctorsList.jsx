@@ -151,7 +151,8 @@ function DoctorsList() {
       const cleanFilters = Object.fromEntries(
         Object.entries({
           ...filters,
-          status
+          status,
+          nmc_verified
         }).filter(([_, v]) => v !== "")
       );
 
