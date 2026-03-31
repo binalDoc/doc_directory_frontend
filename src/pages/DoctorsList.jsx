@@ -6,6 +6,8 @@ import Loading from "../components/Loading";
 import DoctorProfileModal from "../components/DoctorProfileModal";
 import BulkUploadModal from "../components/BulkUploadModal";
 import { SPECIALTIES } from "../constants/app.constant";
+import ImportFromNMCModal from "../components/ImportDoctorModal";
+import toaster from "../components/toaster";
 
 export const CheckIcon = ({ size = 14 }) => (
   <svg
@@ -89,6 +91,7 @@ function DoctorsList() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const [filters, setFilters] = useState({
     name: "",
@@ -101,6 +104,7 @@ function DoctorsList() {
   const limit = 10;
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [verifyingId, setVerifyingId] = useState(null);
 
   const fetchDoctors = async () => {
     try {
@@ -192,6 +196,20 @@ function DoctorsList() {
     }
   };
 
+  const handleVerifyOnNMC = async (id) => {
+    try {
+      setVerifyingId(id);
+      const result = await adminService.verifyDoctorOnNMC(id);
+      if (result && result.message) toaster.success(result.message);
+      fetchDoctors();
+    } catch (err) {
+      console.error(err);
+      toaster.error(err?.response?.data?.message || "NMC verification failed");
+    } finally {
+      setVerifyingId(null);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="w-full max-w-7xl mx-auto">
@@ -199,12 +217,23 @@ function DoctorsList() {
         <div className="flex flex-row items-center justify-between gap-2 mb-4">
           <h1 className="text-2xl font-bold text-gray-800">Manage Doctors</h1>
 
-          <button
-            onClick={() => setShowBulkModal(true)}
-            className="w-fit inline-flex items-center gap-2 p-2 bg-white text-black border border-gray-400 rounded-xl text-sm font-medium shadow-sm transition"
-          >
-            Bulk Upload Doctors
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowBulkModal(true)}
+              className="w-fit inline-flex items-center gap-2 p-2 bg-white text-black border border-gray-400 rounded-xl text-sm font-medium shadow-sm transition"
+            >
+              Bulk Upload Doctors
+            </button>
+
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="w-fit inline-flex items-center gap-2 p-2 bg-white text-black border border-gray-400 rounded-xl text-sm font-medium shadow-sm transition"
+            >
+              Import from NMC
+            </button>
+          </div>
+
+
         </div>
 
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -237,7 +266,7 @@ function DoctorsList() {
           ))}
 
           <button
-            onClick={() => {setNmcVerified((prev)=>!prev), setStatus("")}}
+            onClick={() => { setNmcVerified(true), setStatus("") }}
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition font-medium
         ${nmc_verified
                 ? "bg-blue-600 text-white shadow"
@@ -296,7 +325,7 @@ function DoctorsList() {
                     <th className="p-4 text-left w-[100px]">Specialty</th>
                     <th className="p-4 text-center w-[100px]">Profile</th>
                     <th className="p-4 text-center w-[120px]">Completion</th>
-                    <th className="p-4 text-center w-[120px]">NMC</th>
+                    <th className="p-4 text-center w-[120px]">NMC status</th>
                     <th className="p-4 text-center w-[120px]">Status</th>
                     <th className="p-4 text-center w-[160px]">Action</th>
                   </tr>
@@ -308,10 +337,7 @@ function DoctorsList() {
                       className={`border-t hover:bg-gray-50 transition ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
                     >
                       <td className="p-4 font-medium text-gray-800">{doc.name}</td>
-
-                      <td className="p-4 text-gray-600 truncate">
-                        {doc?.specialty || "-"}
-                      </td>
+                      <td className="p-4 font-medium text-gray-800">{doc?.specialty || "-"}</td>
 
                       <td className="p-4 text-center">
                         <button
@@ -326,15 +352,32 @@ function DoctorsList() {
                         {doc?.completionPercentage || "0"}%
                       </td>
                       <td className="p-4 text-center">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
-                          ${doc.nmc_verified
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-500"
-                          }`}
-                        >
-                          {doc.nmc_verified ? <CheckIcon /> : <CrossIcon />}
-                          {doc.nmc_verified ? "Verified" : "Not Verified"}
-                        </span>
+                        {doc.nmc_verified ? (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            <CheckIcon />
+                            Verified
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleVerifyOnNMC(doc.user_id)}
+                            disabled={verifyingId === doc.user_id}
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                          >
+                            {verifyingId === doc.user_id ? (
+                              <>
+                                <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                </svg>
+                                Verifying...
+                              </>
+                            ) : (
+                              <>
+                                Verify
+                              </>
+                            )}
+                          </button>
+                        )}
                       </td>
                       <td className="p-4 text-center">
                         <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
@@ -419,18 +462,34 @@ function DoctorsList() {
                     <span><span className="font-medium text-gray-700">State:</span> {doc?.state || "-"}</span>
                     <span><span className="font-medium text-gray-700">Completion:</span> {doc?.completionPercentage || "0"}%</span>
                     <span className="flex items-center gap-1">
-                      <span className="font-medium text-gray-700">NMC:</span>
+                      <span className="font-medium text-gray-700">NMC status:</span>
 
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium
-                          ${doc?.nmc_verified
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-500"
-                          }`}
-                      >
-                        {doc?.nmc_verified ? <CheckIcon size={10} /> : <CrossIcon size={10} />}
-                        {doc?.nmc_verified ? "Verified" : "Not Verified"}
-                      </span>
+                      {doc.nmc_verified ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                          <CheckIcon />
+                          Verified
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleVerifyOnNMC(doc.user_id)}
+                          disabled={verifyingId === doc.user_id}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        >
+                          {verifyingId === doc.user_id ? (
+                            <>
+                              <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                              </svg>
+                              Verifying...
+                            </>
+                          ) : (
+                            <>
+                              Verify
+                            </>
+                          )}
+                        </button>
+                      )}
                     </span>
                   </div>
 
@@ -505,6 +564,13 @@ function DoctorsList() {
             doctorId={selectedDoctorId}
             onClose={() => setSelectedDoctorId(null)}
             CrossIcon={CrossIcon}
+          />
+        )}
+
+        {showImportModal && (
+          <ImportFromNMCModal
+            onClose={() => setShowImportModal(false)}
+            onSuccess={fetchDoctors}
           />
         )}
 

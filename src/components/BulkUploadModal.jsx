@@ -47,7 +47,16 @@ function BulkUploadModal({ onClose, onSuccess }) {
             onSuccess();
         } catch (err) {
             console.error(err);
-            toaster.error("Upload failed. Please check the file format.");
+
+            const message = err?.response?.data?.message || "Upload failed. Please check the file format.";
+            setResult({
+                message,
+                successCount: 0,
+                failedCount: 0,
+                failed: []
+            });
+
+            toaster.error(message);
         } finally {
             setUploading(false);
         }
@@ -69,9 +78,10 @@ function BulkUploadModal({ onClose, onSuccess }) {
         if (e.target === e.currentTarget) onClose();
     };
 
+    const allSuccess = result?.failedCount === 0 && result?.successCount != 0 || false;
+    const allFailed = result?.successCount === 0 || false;
+
     const ResultView = () => {
-        const allSuccess = result.failedCount === 0;
-        const allFailed = result.successCount === 0;
 
         return (
             <div className="flex flex-col gap-4">
@@ -212,7 +222,9 @@ function BulkUploadModal({ onClose, onSuccess }) {
                             <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-100">
                                 <span className="text-amber-500 mt-0.5">💡</span>
                                 <p className="text-xs text-amber-700">
-                                    Make sure your file follows the required template format with columns: <strong>name, email, password, specialty, country_id, city_id, state_id, experience, registration_number, registration_year</strong>.
+                                    You can upload <strong>maximum 5 doctors at a time</strong>.
+                                    Ensure file follows format with columns:
+                                    <strong> name, email, password, specialty, country_id, city_id, state_id, experience, registration_number, registration_year</strong>.
                                 </p>
                             </div>
                         </>
@@ -223,7 +235,7 @@ function BulkUploadModal({ onClose, onSuccess }) {
                 <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
                     {result ? (
                         <>
-                            {result.failedCount > 0 && (
+                            {(result.failedCount > 0 || allFailed) && (
                                 <button
                                     onClick={handleReset}
                                     className="px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition"

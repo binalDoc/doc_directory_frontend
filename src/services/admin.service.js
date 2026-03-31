@@ -46,6 +46,15 @@ const updateUserByAdmin = async (id, payload) => {
     }
 }
 
+const verifyDoctorOnNMC = async(id) => {
+     try {
+        const response = await AXIOS_INSTANCE.put(`${ADMIN_API}/nmc-verify-doctor/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 const deleteUserByAdmin = async (id) => {
     try {
         const response = await AXIOS_INSTANCE.delete(`${ADMIN_API}/users/${id}`);
@@ -72,6 +81,17 @@ const getProfileViewAnalyticsDashboard = async () => {
             `${ADMIN_API}/profile-view-dashboard`
         );
         return response.data.result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const importDoctorsFromNMC = async (filters) => {
+    try {
+        const response = await AXIOS_INSTANCE.get(
+            `${ADMIN_API}/import-doctors`, {params : filters}
+        );
+        return response.data;
     } catch (error) {
         throw error;
     }
@@ -186,9 +206,11 @@ const adminService = {
     createUserByAdmin,
     updateUserByAdmin,
     deleteUserByAdmin,
+    verifyDoctorOnNMC,
 
     // bulk
     uploadBulkDoctors,
+    importDoctorsFromNMC,
 
     // analytics
     getProfileViewAnalyticsDashboard,
