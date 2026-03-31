@@ -128,4 +128,27 @@
     data capture and retrieval
   • Built Search Analytics dashboard for admin to visualize search trends
   
+----------------------------------------------------
+📅 30 Mar 2026 — Day 13: NMC Import, Rate Limiting & Redis Cache
+----------------------------------------------------
+  • Built "Import doctors from NMC site" feature based on registration year:
+    - Fetches doctor records directly from the NMC site for a given year
+    - Only one import request allowed per day to avoid overloading the NMC
+      site — enforced at the API level
+    - Request count and the last used offset per year are saved to the DB,
+      so subsequent imports for the same year skip already-fetched records
+      and only pull new unique doctor entries
+  • Implemented Redis cache for the doctor list endpoint to reduce DB load
+    on repeated queries
+ 
+----------------------------------------------------
+📅 31 Mar 2026 — Day 14: Manual NMC Verify Trigger (Admin)
+----------------------------------------------------
+  • Added a "Verify via NMC" button on the Admin Doctor list page
+    - Allows admins to manually trigger the NMC verification API for a
+      specific doctor — handles cases where auto-verification failed due
+      to the NMC site being down at the time of profile update
+  • Opened Doctor Directory to guest users — search and filter is now
+    fully accessible without login or registration, no role required
+ 
 ====================================================

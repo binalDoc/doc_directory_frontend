@@ -294,7 +294,7 @@ function Home() {
               }
             </p>
 
-            {(user.role === "PHARMA" || user.role === "ADMIN") && (<button
+            {(user && (user.role === "PHARMA" || user.role === "ADMIN")) && (<button
               onClick={handleExportDoctors}
               disabled={isDownloading || list.length === 0}
               title={"Export doctors"}

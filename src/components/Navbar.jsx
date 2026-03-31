@@ -17,7 +17,7 @@ function Navbar() {
     {/* Logo */}
     <div
       className="flex items-center gap-2.5 cursor-pointer"
-      onClick={() => navigate("/home")}
+      onClick={() => navigate("/")}
     >
       <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -28,7 +28,7 @@ function Navbar() {
     </div>
 
     {/* Right side */}
-    <div className="flex items-center gap-3">
+    {user && <div className="flex items-center gap-3">
 
       {/* Admin panel button */}
       {user?.role === "ADMIN" && (
@@ -83,7 +83,7 @@ function Navbar() {
         <span className="hidden sm:inline">Logout</span>
       </button>
 
-    </div>
+    </div>}
   </div>
 );
 }

@@ -84,9 +84,16 @@ function Welcome() {
               <button onClick={() => navigate("/login")} className="px-8 py-3 border border-white/15 hover:border-white/30 rounded-xl transition text-gray-300 hover:text-white">
                 Sign in
               </button>
+              <button onClick={() => navigate("/home")} className="px-8 py-3 rounded-xl transition text-white text-sm underline underline-offset-4">
+                Browse as guest →
+              </button>
             </>
           )}
         </div>
+
+        <p className="mt-4 text-xs text-gray-600">
+          No account needed — search and explore the directory freely
+        </p>
 
         <div className="flex gap-8 mt-12 pt-8 border-t border-white/5 text-sm text-gray-500 flex-wrap justify-center">
           <span><strong className="text-white text-base">500+</strong> Verified Doctors</span>
@@ -132,10 +139,6 @@ function Welcome() {
                 </div>
                 <div className="flex gap-2.5 text-xs text-gray-400">
                   <span className="text-blue-400 shrink-0">→</span>
-                  <span>Profile view analytics show you exactly who's paying attention</span>
-                </div>
-                <div className="flex gap-2.5 text-xs text-gray-400">
-                  <span className="text-blue-400 shrink-0">→</span>
                   <span>A verified badge here carries weight — it's backed by a registry, not a checkbox</span>
                 </div>
               </div>
@@ -162,10 +165,6 @@ function Welcome() {
                   <span className="text-cyan-400 shrink-0">→</span>
                   <span>Data re-verified on every profile update — never stale, never guessed</span>
                 </div>
-                <div className="flex gap-2.5 text-xs text-gray-400">
-                  <span className="text-cyan-400 shrink-0">→</span>
-                  <span>No self-claimed profiles — every listing is registry-backed</span>
-                </div>
               </div>
             </div>
 
@@ -184,22 +183,34 @@ function Welcome() {
               <div className="space-y-2.5 pt-3 border-t border-white/5">
                 <div className="flex gap-2.5 text-xs text-gray-400">
                   <span className="text-green-400 shrink-0">→</span>
-                  <span>Bulk-import hundreds of doctors from Excel in one upload</span>
+                  <span>Bulk-upload hundreds of doctors from Excel in one upload</span>
                 </div>
                 <div className="flex gap-2.5 text-xs text-gray-400">
                   <span className="text-green-400 shrink-0">→</span>
-                  <span>Analytics dashboard shows who's viewing which profiles and when</span>
-                </div>
-                <div className="flex gap-2.5 text-xs text-gray-400">
-                  <span className="text-green-400 shrink-0">→</span>
-                  <span>Manual approve / reject as a final quality gate, not the only one</span>
+                  <span>Search and profile view Analytics dashboards</span>
                 </div>
               </div>
             </div>
 
           </div>
 
-          {/* Bottom comparison — 2 boxes only */}
+          {/* Guest access callout */}
+          <div className="mb-6 p-5 rounded-xl border border-white/8 bg-white/2 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-gray-300 mb-1">Just here to explore?</p>
+              <p className="text-xs text-gray-500">
+                No account required. Browse and search verified doctors freely — register only when you're ready.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/home")}
+              className="shrink-0 px-5 py-2 rounded-lg border border-white/15 hover:border-white/30 text-sm text-gray-300 hover:text-white transition whitespace-nowrap"
+            >
+              Browse as guest →
+            </button>
+          </div>
+
+          {/* Bottom comparison */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-5 rounded-xl border border-white/8 bg-white/2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Other Platforms</p>
@@ -240,22 +251,27 @@ function Welcome() {
       <section className="relative z-10 px-6 py-20 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-3">How Verification Works</p>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Automatic. Instant. Reliable.</h2>
+            <p className="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-3">
+              How Verification Works
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              Verified by Source. Approved by Admin.
+            </h2>
             <p className="text-gray-400 max-w-xl mx-auto text-sm">
-              When a doctor fills in their registration details, our backend immediately
-              calls official medical registry APIs to confirm they're real and licensed.
-              No human in the loop. No delay.
+              As soon as a doctor submits or updates their profile, our system instantly
+              verifies their credentials using official medical registry APIs (like NMC).
+              Only profiles that pass verification are reviewed and approved by admins
+              before being listed publicly.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
             {[
-              { label: "Doctor fills profile", color: "bg-white/5 border-white/10 text-gray-300" },
+              { label: "Doctor submits/updates profile", color: "bg-white/5 border-white/10 text-gray-300" },
               null,
-              { label: "Registry API called", color: "bg-blue-500/10 border-blue-500/20 text-blue-300" },
+              { label: "NMC API verification ✓", color: "bg-blue-500/10 border-blue-500/20 text-blue-300" },
               null,
-              { label: "Profile auto-verified ✓", color: "bg-green-500/10 border-green-500/20 text-green-300" },
+              { label: "Admin approval → Listed", color: "bg-green-500/10 border-green-500/20 text-green-300" },
             ].map((step, i) =>
               step === null
                 ? <span key={i} className="hidden sm:block text-blue-400 text-xl">→</span>
@@ -265,10 +281,26 @@ function Welcome() {
 
           <div className="grid md:grid-cols-2 gap-5">
             {[
-              { icon: "🔒", title: "Automatic, not manual", desc: "Verification runs via API the moment a profile is submitted or updated — no admin bottleneck, no queue." },
-              { icon: "🔄", title: "Re-verified on every update", desc: "Profile data changed? The registry check runs again. You always see credentials that are current, not cached." },
-              { icon: "🌐", title: "Global by design", desc: "Not locked to one country. The platform is built to connect with medical registries across countries as it scales." },
-              { icon: "🛡️", title: "Admin as the safety net", desc: "Admins can still review, approve, or reject any profile — but as an extra layer of confidence, not the primary gate." },
+              {
+                icon: "⚡",
+                title: "Instant API Verification",
+                desc: "Doctor details are verified in real-time via official registry APIs (like NMC) as soon as the profile is created or updated."
+              },
+              {
+                icon: "🏷️",
+                title: "Verification Flag in Database",
+                desc: "Once verified, a secure flag is stored in the database ensuring only trusted, validated profiles move forward in the process."
+              },
+              {
+                icon: "🛡️",
+                title: "Admin Approval Layer",
+                desc: "Only NMC-verified profiles are reviewed by admins, adding a final layer of trust before making them visible in the directory."
+              },
+              {
+                icon: "🌐",
+                title: "Trust-first Directory",
+                desc: "Doctors are listed publicly only after passing both verification and admin approval, ensuring users see reliable and authentic profiles."
+              },
             ].map((item, i) => (
               <div key={i} className="flex gap-4 p-6 bg-white/3 border border-white/8 rounded-2xl">
                 <div className="text-2xl shrink-0">{item.icon}</div>
@@ -301,6 +333,9 @@ function Welcome() {
                 <button onClick={() => navigate("/login")} className="px-8 py-3 border border-white/15 hover:border-white/30 rounded-xl transition text-gray-300 hover:text-white">
                   Sign in
                 </button>
+                <button onClick={() => navigate("/home")} className="px-8 py-3 rounded-xl transition text-gray-500 hover:text-gray-300 text-sm underline underline-offset-4">
+                  Browse as guest →
+                </button>
               </>
             ) : (
               <button onClick={() => navigate("/home")} className="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition shadow-xl shadow-blue-600/25">
@@ -310,7 +345,6 @@ function Welcome() {
           </div>
         </div>
       </section>
-
       {/* ── FOOTER ── */}
       <footer className="border-t border-white/5 px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-gray-600">
         <span>© 2026 DocDirectory — Built for verified healthcare connections</span>
