@@ -1,9 +1,9 @@
-import { DOCTOR_API } from "../constants/api.constant";
+import { DOCTOR_API, DOCTORS_API } from "../constants/api.constant";
 import AXIOS_INSTANCE from "../utils/api";
 
 const getDoctors = async (filters) => {
     try {
-        const response = await AXIOS_INSTANCE.get(`${DOCTOR_API}/list`, { params: filters });
+        const response = await AXIOS_INSTANCE.get(`${DOCTORS_API}/list`, { params: filters });
         return response.data.result;
     } catch (error) {
         throw error;
@@ -21,7 +21,7 @@ const getDoctorProfile = async () => {
 
 const getDoctorProfileById = async (id) => {
     try {
-        const response = await AXIOS_INSTANCE.get(`${DOCTOR_API}/${id}`);
+        const response = await AXIOS_INSTANCE.get(`${DOCTORS_API}/${id}`);
         return response.data.result;
     } catch (error) {
         throw error;
