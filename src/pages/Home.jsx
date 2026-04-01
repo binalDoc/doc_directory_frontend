@@ -412,7 +412,7 @@ function Home() {
             </button>
             <span className="text-sm text-gray-500 font-medium">Page {page}</span>
             <button
-              disabled={list.length < limit}
+              disabled={list.length <= limit}
               onClick={() => setPage(page + 1)}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium disabled:opacity-40 transition shadow-sm"
             >

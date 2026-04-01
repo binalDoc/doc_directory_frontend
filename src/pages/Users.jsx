@@ -195,7 +195,7 @@ function Users() {
           </button>
           <span className="text-gray-600 font-medium text-sm">Page {page}</span>
           <button
-            disabled={list.length < limit}
+            disabled={list.length <= limit}
             onClick={() => setPage(page + 1)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 text-sm font-medium hover:bg-blue-700 transition"
           >
