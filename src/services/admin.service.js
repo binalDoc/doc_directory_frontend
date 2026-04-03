@@ -13,7 +13,16 @@ const getDoctorStatusCounts = async () => {
 const updateDoctorStatus = async (id, status) => {
     try {
         const response = await AXIOS_INSTANCE.patch(`${ADMIN_API}/doctor-status/${id}`, status);
-        return response.data.result;
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const bulkUpdateDoctorStatus = async (ids, status) => {
+    try {
+        const response = await AXIOS_INSTANCE.patch(`${ADMIN_API}/doctor-status/bulk`, {ids, status});
+        return response.data;
     } catch (error) {
         throw error;
     }
@@ -199,6 +208,7 @@ const getSearchesByDate = async (params) => {
 const adminService = {
     // doctor
     updateDoctorStatus,
+    bulkUpdateDoctorStatus,
     getDoctorStatusCounts,
 
     // users

@@ -105,6 +105,10 @@ function DoctorsList() {
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [verifyingId, setVerifyingId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const selectedDoctors = list.filter(d => selectedIds.has(d.id));
+  const nmcVerifiedSelectedCount = selectedDoctors.filter(d => d.nmc_verified).length;
 
   const fetchDoctors = async () => {
     try {
@@ -141,10 +145,51 @@ function DoctorsList() {
 
   const handleUpdateStatus = async (id, status) => {
     try {
-      await adminService.updateDoctorStatus(id, { status });
+      const result = await adminService.updateDoctorStatus(id, { status });
+      if (result) {
+        toaster.success(result?.message || "Status updated!");
+      }
       fetchDoctors();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === list.length) {
+      clearSelection()
+    } else {
+      setSelectedIds(new Set(list.map(d => d.id)));//select all
+    }
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkStatus = async (status) => {
+    if (selectedIds.size === 0) return;
+    try {
+      setIsBulkUpdating(true);
+      const result = await adminService.bulkUpdateDoctorStatus(
+        Array.from(selectedIds),
+        status
+      );
+      if (result) {
+        toaster.success(result?.message || "Status updated!");
+      }
+      clearSelection();
+      fetchDoctors();
+    } catch (err) {
+      toaster.error(err?.response?.data?.message || "Bulk update failed");
+    } finally {
+      setIsBulkUpdating(false);
     }
   };
 
@@ -254,7 +299,7 @@ function DoctorsList() {
           {["", "PENDING", "VERIFIED", "REJECTED"].map((s) => (
             <button
               key={s}
-              onClick={() => { setStatus(s); setPage(1); setNmcVerified(false) }}
+              onClick={() => { setStatus(s); setPage(1); setNmcVerified(false); clearSelection() }}
               className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition font-medium
         ${status === s
                   ? "bg-blue-600 text-white shadow"
@@ -317,10 +362,57 @@ function DoctorsList() {
         {/* DESKTOP TABLE — hidden on mobile */}
         {!loading && (
           <>
+            {selectedIds.size > 0 && (
+              <div className="mb-3 px-4 py-2.5 bg-white border border-blue-200 rounded-xl flex flex-wrap items-center gap-3 shadow-sm">
+                <span className="text-sm font-medium text-gray-800">
+                  {selectedIds.size} selected
+                </span>
+                {/* Warn admin if some selections will be skipped on approve */}
+                {nmcVerifiedSelectedCount < selectedIds.size && (
+                  <span className="text-xs text-amber-600">
+                    ({selectedIds.size - nmcVerifiedSelectedCount} not NMC-verified, will be skipped on approve)
+                  </span>
+                )}
+                <div className="ml-auto flex gap-2">
+                  <button
+                    onClick={() => handleBulkStatus("VERIFIED")}
+                    disabled={isBulkUpdating || nmcVerifiedSelectedCount === 0}
+                    title={nmcVerifiedSelectedCount === 0 ? "None of the selected doctors are NMC verified" : ""}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <CheckIcon />
+                    Approve selected
+                  </button>
+                  <button
+                    onClick={() => handleBulkStatus("REJECTED")}
+                    disabled={isBulkUpdating}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                  >
+                    <CrossIcon />
+                    Reject selected
+                  </button>
+                  <button
+                    onClick={clearSelection}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 text-gray-600 hover:bg-gray-100"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="hidden md:block bg-white border border-gray-200 rounded-2xl shadow w-full overflow-hidden">              <div className="overflow-x-auto">
               <table className="w-full text-sm table-fixed">
                 <thead className="bg-gray-100 sticky top-0 z-10">
                   <tr>
+                    <th className="p-4 text-center w-[44px]">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-blue-600"
+                        checked={list.length > 0 && selectedIds.size === list.length}
+                        onChange={toggleSelectAll}
+                      />
+                    </th>
                     <th className="p-4 text-left w-[100px]">Doctor</th>
                     <th className="p-4 text-left w-[100px]">Specialty</th>
                     <th className="p-4 text-center w-[100px]">Profile</th>
@@ -336,6 +428,14 @@ function DoctorsList() {
                       key={doc.id}
                       className={`border-t hover:bg-gray-50 transition ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
                     >
+                      <td className="p-4 text-center">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 accent-blue-600"
+                          checked={selectedIds.has(doc.id)}
+                          onChange={() => toggleSelect(doc.id)}
+                        />
+                      </td>
                       <td className="p-4 font-medium text-gray-800">{doc.name}</td>
                       <td className="p-4 font-medium text-gray-800">{doc?.specialty || "-"}</td>
 
@@ -455,6 +555,12 @@ function DoctorsList() {
                       {doc.status === "REJECTED" && <CrossIcon />}
                       {doc.status}
                     </span>
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 accent-blue-600 mt-1"
+                      checked={selectedIds.has(doc.id)}
+                      onChange={() => toggleSelect(doc.id)}
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-1 text-xs text-gray-500">
